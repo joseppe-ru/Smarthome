@@ -1,0 +1,10 @@
+Programme:
+    #   Python Paket Manager
+sudo install pip 
+    #   WiringPi aus Git repository
+
+Python Module:
+
+IP Statisch einstellen: 
+    # im Verzeichnis :: ändern
+etc/network/interfaces
