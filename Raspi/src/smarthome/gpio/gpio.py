@@ -1,5 +1,4 @@
-import RPi.GPIO as GPIO
-import serial
+#import RPi.GPIO as GPIO
 
 print("hello Munke")
 

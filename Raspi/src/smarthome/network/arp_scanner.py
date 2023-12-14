@@ -1,5 +1,5 @@
 import socket
-import scapy.all as scapy
+import subprocess
 
 class Network_Scanner:
 
@@ -9,5 +9,10 @@ class Network_Scanner:
         s.connect(("8.8.8.8", 80))
         print("(eth0) ip-addr: "+s.getsockname()[0])
 
-    def scan(self):
-        scapy.arping("10.42.0.101")
+    def ping_check(self, ip_adr):
+        try:
+            subprocess.check_output(["ping", ip_adr])
+            return True
+        except subprocess.CalledProcessError:
+            return False
+        

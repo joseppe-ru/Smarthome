@@ -1,12 +1,9 @@
-# python main script, zum Steuern der Hausautmatisierungen, die auf dem Raspi laufen
-# kommplett mnutzloser shit!!
+# Zentrales Python script zum Steuern der einzelnen Logiken
 import sys
+import threading
 
-# eingene Import
-from network.arp_scanner import Network_Scanner
+# Netzwerk
+import network.network
 
-sys.path.append("ip_scanner")
+import gpio.gpio
 
-scanner = Network_Scanner()
-scanner.startup()
-scanner.scan()
