@@ -1,0 +1,17 @@
+#!/bin/bash
+datum=date `date +%Y-%m-%d-%H-%M`
+log_pfad=~/log
+while true;
+do
+  ping -c1 192.168.2.189
+  if [ $? -eq 0 ]
+  then
+      echo Daheim
+      echo $date "+%Y-%m-%d-%H-%M"    PC steht Daheim >> $log_pfad/log.file
+      sleep 1m
+      #exit 0
+  else
+    echo auswärts unterwegs
+  fi
+done
+echo script zuende
