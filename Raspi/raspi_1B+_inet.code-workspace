@@ -1,8 +1,0 @@
-{
-	"folders": [
-		{
-			"uri": "sftp://pi@192.168.2.169/home/pi/src"
-		}
-	],
-	"settings": {}
-}
