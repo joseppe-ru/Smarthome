@@ -1,11 +1,11 @@
 ==Legende:===========================================
-#Code	#Nickname		#Name
-PSM		PiSer-Modul		RaspberryPi Server Modul
-FWU		FrWeb-UI		Frontend Website UI 
-NDI		Nice-face		Network Device Interface
-PPI		PiPi-Com 		RaspberryPi to RaspberryPi Comunication
-RAC		RaAr-Anal-Com	RaspberryPi to Arduino Analog Comunication
-RSW		RusSe-Wa 		Rust Server Workaround
+#Code	#Nickname	#Name
+PSM	PiSer-Modul	RaspberryPi Server Modul
+FWU	FrWeb-UI	Frontend Website UI 
+NDI	Nice-face	Network Device Interface
+PPI	PiPi-Com 	RaspberryPi to RaspberryPi Comunication
+RAC	RaAr-Anal-Com	RaspberryPi to Arduino Analog Comunication
+RSW	RusSe-Wa 	Rust Server Workaround
 ======================================================
 
 ==PiSer-Modul:============================================================================
