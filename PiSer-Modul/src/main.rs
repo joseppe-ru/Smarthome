@@ -1,28 +1,31 @@
 use std::convert::Infallible;
 use std::net::SocketAddr;
+use local_ip;
 
 use std::fs;
-use std::path::{PathBuf,Path};
-use http_body_util::Full;
-use hyper::body::{Body, Bytes};
+use std::path::Path;
+use http_body_util::{BodyExt, Full};
+use hyper::body::Bytes;
 use hyper::server::conn::http1;
-use hyper::service::service_fn;
-use hyper::{Request, Response};
-use hyper::header::FROM;
+use hyper::service::{service_fn};
+use hyper::{Request,Response};
 use hyper_util::rt::TokioIo;
 use tokio::net::TcpListener;
+
 
 fn extract_file_extension(path:&str)->Option<&str> {
     if path == "/"{
         return Some(path);
     }
-    else if let ext = path.rsplit(".").next(){
-       return ext;
+    else {
+       return path.rsplit(".").next();
     }
-    return None;
 }
 
 async fn cli_request(req: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, Infallible> {
+    println!("Methode: {:?}",req.method());
+    println!("alle: {:?}",req);
+
     // Extrahiere den Pfad aus der Anfrage
     let req_path = req.uri().path();
     println!("searched for: {}",req_path);
@@ -61,11 +64,13 @@ async fn cli_request(req: Request<hyper::body::Incoming>) -> Result<Response<Ful
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let own_ip = local_ip::get();
+
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000)); //Addresse muss 0.0.0.0 sein, weil ich auf alle Geräte im Netzt hören will!!
 
     // We create a TcpListener and bind it to 127.0.0.1:3000
     let listener = TcpListener::bind(addr).await?;
-	println!("HTTP Server hostet at http://{}/",addr);
+	println!("HTTP Server hosted at http://{:?}:3000/",own_ip.unwrap());
     // We start a loop to continuously accept incoming connections
     loop {
         let (stream, _) = listener.accept().await?;
@@ -74,9 +79,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         // `hyper::rt` IO traits.
         let io = TokioIo::new(stream);
 
-        // Spawn a tokio task to serve multiple connections concurrently
+        // Spawn a tokio task to serve multiple connections concurrentl
         tokio::task::spawn(async move {
-            //welcher teil meiner website (pfad) wurde aufgerufen
             // Finally, we bind the incoming connection to our `hello` service
             if let Err(err) = http1::Builder::new().serve_connection(io, service_fn(cli_request)).await  // `service_fn` converts our function in a `Service`
             {
