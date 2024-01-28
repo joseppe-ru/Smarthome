@@ -1,0 +1,60 @@
+PiPi-Com: Pi to Pi Comunication
+    - Programmiersprache ist völligst egal
+    - kann über REST oder MQTT sehr easy daten austauschen
+    - MQTT bevorzugt
+    - Dazu brauche ich halt wieder Server und Client
+    Client: (Sensor/Actor)
+        - Die Sprache, die am besten auf die restlichen Aufgaben passt (GPIO)
+    Server:
+        - javascript mach in einer Website halt sinn...
+        - sonst noch wasm mit Rust -> da wäre der Broker auf jeden fall zuverlässiger
+##==> Cient: Python, Server: RUST
+
+PiSer-Modul: Pi Server Modul
+    - geht easy in Rust
+    - als wasm (web assembly) macht das nur keinen Sinn
+    - ist dann aber hoffentlich sehr zuverlässig und laufzeit effizient
+    -> erweiterungen könnten komlizierter werden...
+    (automatischer reload bei absspeichern, CORS, etc...)
+##==> RUST
+
+FrWeb-UI: Frontend Website Interface
+    - ganz normal in HTML und JS programmierbar
+    - fraglich mit dynamischer organisation
+##==> HTML, JS, RUST
+
+Nice-face:
+    - Smarthome geräte ohne cloud:
+        - einfaches abfragen über bekannte Protokolle (REST, MQTT,...)
+        - keine Spracheingabe
+        - simpel integrierbar über Rust(wasm), JS, Python (Python und Websiten, naja...)
+        - das könnte JS machen, wollte aber gern in andern sprachen programmiern
+    - Smarthome geräte mit cloud:
+        - komplizierter
+        - mit Bibiothek (python tuya_local) vereinfacht
+        -> deutlicher aufwandt! und auch nicht ganz Sinn und Zweck
+        - weiß nicht, ob das in JS spaß macht
+##==> würde ich gern in Rust machen, aber mal schauen, das stell ich mal hinten an
+
+##==>> Gesamt result <<==##
+PiSer-Mosul:
+    HTTP-Server in Rust
+    MQTT-Broker auch in Rust
+    ! Kommunikation mit JS Script
+
+FrWeb-UI:
+    HTML, JS
+    ! JS muss daten vom HTTP-Server(Rust) entgegennehmen und Senden
+
+PiPi-Com:
+    Server-teil läuft auf PiSer-Modul
+    Client erstmal Python, später aber auch alles andere Möglich, je nach Anwendungsbereich
+
+RaAr-Anal-com:
+    Kommt ganz auf PiPi-Com Client an
+    ! erstmal nachgestellt
+
+Nice-face:
+    ! hinten angestellt
+    ohne Cloud-geräte mit sicherheit in Rust integrierbar
+    ! Cloud-geräte schon schwieriger

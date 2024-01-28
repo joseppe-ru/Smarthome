@@ -1,0 +1,9 @@
+es gibt ja schon Protokolle für IoT (hätte ich doch mal aufgepasst...)
+MQTT
+REST
+ basierend auf HTTP....
+
+mit python sehr einfach einen Server zu starten
+mit javascript etwas schwerer glaube ich, aber geht auch
+
+die Server könnte ich aber auch mit rust machen, geht evtl auch ganz gut

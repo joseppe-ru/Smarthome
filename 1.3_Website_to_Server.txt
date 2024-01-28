@@ -1,0 +1,8 @@
+Ich könnte mich von Website zu Rust unterhalten
+    - AJAX-Anfragen senden von javascript aus
+        -> über REST
+ richtig cool, rust macht das richtig gut mit (sieht zumindest leicht bei chatgpt aus)
+
+ -> mit Webassembly müsste ich aber nichtmal was an den Server schicken
+  mehr dazz beim Server
+

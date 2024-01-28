@@ -1,0 +1,15 @@
+Erkenntnisse durch Recherche:
+
+Nice-face muss nach Protokollen / Hersteller aufgeteilt werden.
+    -> also nach welches Protokoll benutzt wird
+    da sind zum einen Cloud-basierte:
+        - tuya
+    und andere:
+        - REST Protokoll (Phillips)
+
+für Sachen wie TuYa braucht man denke ne extra Bibliothek oder so
+Für die, die normale Protokolle nutzen, kann man simpel mit doku vom hersteller ansteuern
+
+Python hat imports für TuYa
+Python hat auch funktionen, die das kommunizieren über REST oder anderen sachen erleichtert
+    -> das wär aber definitiv auch in anderen Sprachen möglich
