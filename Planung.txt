@@ -4,7 +4,8 @@ PSM		PiSer-Modul		RaspberryPi Server Modul
 FWU		FrWeb-UI		Frontend Website UI 
 NDI		Nice-face		Network Device Interface
 PPI		PiPi-Com 		RaspberryPi to RaspberryPi Comunication
-RAAC	RaAr-Anal-Com	RaspberryPi to Arduino Analog Comunication
+RAC		RaAr-Anal-Com	RaspberryPi to Arduino Analog Comunication
+RSW		RusSe-Wa 		Rust Server Workaround
 ======================================================
 
 ==PiSer-Modul:============================================================================
@@ -38,52 +39,59 @@ Ziel ist die Kommunkation zwischen RaspberryPi und Arduino über Verdrahtung.
 An dieser stelle findet das "IR-Remote" seinen Platz.
 ============================================================================
 
-1. Theorie klären
+==RusSe-Wa:================================================
+commandline-tool, welches mir den workaround erleichtert.
+liest pfade aus datei ein.
+fügt alle js-scripte zusammen.
+speist dieses bundel und die html-datei dem PiSer-Modul ein.
+Soll automatisch neu starten, sobald ich etwas an der html oder js datei geändert und gspeichert habe
+============================================================
 
-1.1 (NDI)
-	Kann ich über die Schnittstelle der Hersteller Smart-Geräte anbinden?
-		- Für welche Programmiersprachen gibt es welche API's? (Python, Javascript, WASM?, Docker & GO?, PHP, Rust) (tuya, UPNP, ...) => Tabelle bitte!, nicht nötig
-		- mehrere API's gleichzeitig? => ja
-	=> Hersteller (Protokolle) sind wichtig, Die Hersteller haben Docs und API's, wär mit python definitiv simpler, cloudasierte sind schwerer und abhängiger
-
-1.2 (PPI)
-	Wie kann ich einen RaspberryPI als Smart-Gerät einrichten? 
-		- Brauche ich dafür eigenen server und client oder kann das mit über eine der API's (siehe 1.) laufen? 
-		-> wenn ja: ich muss einen eigenen Server und Client Programmieren:
-			- gegenprüfen mit 1.
-				-> wie kann ich Server/Client darstellen, ist das Realistisch?
-	=> nichts leichter als das, MQTT oder RESTFUL server aufmachen und los gehts...
-	=> ist auf jeden fall machbar
-
-1.3 (FWU)(PSM) 
-	Wie kann ich die ausgwählte Programmiersprache (siehe 1.) als API für meine Website oder Server nuzten?
-		- spielt es eine Rolle, welche Art von Server ich habe? (Node.js, Rust, ...)
-		- Zugriff auf script, funtionen ausführen, Anzeige und Bedienung -> Muss alles von Website aus möglich sein
-	=> Rust server, RESTful api -> AJAX anfrage
-
-1.4 (PSM)
-	Webserver mit Rust programmieren???
-	=> in ChatGPT sieht das eigentlich ziemlich easy aus und ich denke Rust ist als Server leistungsfähiger als Pythonj
-	
-========MS1: Programmiersprache auserwählen!!
-			-> Aufwandt-Nutzen beachten!!
-
-2. Erste Test für Prognosen (Wie Komplex->ist das machbar; funktioniert es überhaupt, wie in Theorie beschrieben)
-
-2.1 (PSM)
-	RUSTikaler ansatzt für Webserver
-		- HTTP Server
+# 1. Theorie klären
+#
+# 1.1 (NDI)
+#	Kann ich über die Schnittstelle der Hersteller Smart-Geräte anbinden?
+#		- Für welche Programmiersprachen gibt es welche API's? (Python, Javascript, WASM?, Docker & GO?, PHP, Rust) (tuya, UPNP, ...) => Tabelle bitte!, nicht nötig
+#		- mehrere API's gleichzeitig? => ja
+#	=> Hersteller (Protokolle) sind wichtig, Die Hersteller haben Docs und API's, wär mit python definitiv simpler, cloudasierte sind schwerer und abhängiger
+#
+# 1.2 (PPI)
+#	Wie kann ich einen RaspberryPI als Smart-Gerät einrichten?
+#		- Brauche ich dafür eigenen server und client oder kann das mit über eine der API's (siehe 1.) laufen?
+#		-> wenn ja: ich muss einen eigenen Server und Client Programmieren:
+#			- gegenprüfen mit 1.
+#				-> wie kann ich Server/Client darstellen, ist das Realistisch?
+#	=> nichts leichter als das, MQTT oder RESTFUL server aufmachen und los gehts...
+#	=> ist auf jeden fall machbar
+#
+# 1.3 (FWU)(PSM)
+#	Wie kann ich die ausgwählte Programmiersprache (siehe 1.) als API für meine Website oder Server nuzten?
+#		- spielt es eine Rolle, welche Art von Server ich habe? (Node.js, Rust, ...)
+#		- Zugriff auf script, funtionen ausführen, Anzeige und Bedienung -> Muss alles von Website aus möglich sein
+#	=> Rust server, RESTful api -> AJAX anfrage
+#
+# 1.4 (PSM)
+#	Webserver mit Rust programmieren???
+#	=> in ChatGPT sieht das eigentlich ziemlich easy aus und ich denke Rust ist als Server leistungsfähiger als Pythonj
+#
+# ========MS1: Programmiersprache auserwählen!!
+#			-> Aufwandt-Nutzen beachten!!
+#
+# 2. Erste Test für Prognosen (Wie Komplex->ist das machbar; funktioniert es überhaupt, wie in Theorie beschrieben)
+#
+# 2.1 (PSM)
+#	RUSTikaler ansatzt für Webserver
+#		- HTTP Server
 		- MQTT-Server
-		- Website integrieren
-		- Inptumethode Texteingabe intergrieren (zum Testen)
-			-> Kommunikation mit JS
+#		- Website integrieren
+#
 
-2.2 (FWU)
+2.3 (FWU)
 	Website für Server
 		- Basic Input und Output element (zum Testen)
 		- JS kommunikation über http mit Rust
 
-2.3 (PIPI-Com)
+2.4 (PIPI-Com)
 	MQTT Client auf Raspi 1 B+
 		- austausch mit Server
 		- Eingabe und Ausgabe Methode
@@ -96,6 +104,14 @@ MS2: Alle Tests abgeschlossen!!
 		- Kommunikation zwischen Raspberrys über MQTT
 
 3. Ausbau der Grundfunktionen (Die Parameter kann ich jetzt noch nicht festlegen)
+
+3.1 (RSW)
+	Woraround für webentwicklung mit Rust-server programmieren
+		- commandline tool, dass folgende aufgaben für mich automatisiert:
+			- Zielordner in Server-Anwendungs-Pfad leeren
+			- alle js-dateien dahin copieren (oder zusammenfassen)
+			- html dahin kopieren
+			- Server starten
 
 
 
