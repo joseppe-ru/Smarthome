@@ -105,14 +105,15 @@ MS2: Alle Tests abgeschlossen!!
 
 3. Ausbau der Grundfunktionen (Die Parameter kann ich jetzt noch nicht festlegen)
 
-3.1 (RSW)
-	Woraround für webentwicklung mit Rust-server programmieren
-		- commandline tool, dass folgende aufgaben für mich automatisiert:
-			- Zielordner in Server-Anwendungs-Pfad leeren
-			- alle js-dateien dahin copieren (oder zusammenfassen)
-			- html dahin kopieren
-			- Server starten
+# 3.1 (RSW)
+	Websocket und kommunikation zwischen script und Server
+	TSL/SSL sicherheit bei zugriff auf website
+	
 
 
+Modul Plan:
 
-
+# PiSer-Modul (PSM)
+  - TSL/SSL sicherheit bei zugriff auf website
+  - Zugriff von Handy (im selbern Netzwerk und von ausßerhalb) -> Zertifikat?
+  - 

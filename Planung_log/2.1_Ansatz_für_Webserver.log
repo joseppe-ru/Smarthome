@@ -1,0 +1,14 @@
+Rust Server geschrieben:
+
+-hostet Website, erreichbar von allen Geräten im Netz
+
+  # funktioniert so:
+-lauscht unter dem Port 3000 auf alle ip-adressen
+-auf Anfrage schickt der Server das HTML-Script
+-das HTML-Script wird unter /home/russe/Coding/Smarthome/FrWeb-UI/index.html eingelesen und in Bytes konvertiert
+-ebenfalls frag dann die html-Website nach dem js-script
+-das HTML-Script wird unter /home/russe/Coding/Smarthome/FrWeb-UI/*.js eingelesen und in Bytes konvertiert
+-und geschickt
+
+  # offen...wie mach ich das:
+-ip adresse vom client abfragen
