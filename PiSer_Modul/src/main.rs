@@ -1,16 +1,19 @@
-use std::io::{stdout,BufWriter};
+use std::any::type_name;
+use std::io::{stdout, BufWriter};
 use warp::{Filter, ws};
 use ferris_says::say;
 use futures::StreamExt;
-use local_ip;
 use futures::stream::SplitSink;
 use warp::ws::{Message, WebSocket};
 use std::io;
+use std::net::Ipv4Addr;
 use tokio::task::JoinHandle;
 use tokio::sync::oneshot;
-
+use local_ip_address::list_afinet_netifas;
 
 async fn system_input(tx_shut: oneshot::Sender<()>) -> Result<(), &'static str>{
+    //TODO: Nachrichten eingeben und senden
+
     loop{
         //Display Options
         println!("1 Restart HTTPServer");
@@ -103,27 +106,39 @@ async fn main() {
         let writer = BufWriter::new(stdout.lock());
 
         say("Hello, Munke",12,writer).unwrap();
-        println!("HTTP Server hosted at https://{:?}:9231/",local_ip::get().unwrap()); //eigne ip ausgeben
-    }
+        let network_interfaces = list_afinet_netifas().unwrap();
 
-    //TODO: tx und rx oneshot muss von Server-Funktion erstellt werden, damit der Server neugestartet werden kann
-    // -> tx muss dann auch neu an Input-Funktion übergeben werden
-    //Signal für shutdown
-    let (tx_shut, rx_shut) = oneshot::channel::<()>();
-
-    let http_server=tokio::spawn(http_server_setup(rx_shut));
-    let input=tokio::spawn(system_input(tx_shut));
-
-    let processing_res = tokio::try_join!(
-        flatten(http_server),
-        flatten(input));
-
-    match processing_res{
-        Ok((server_res,input_res))=>{
-            println!("Rückgabe = (Server: {:?}) (Input: {:?} ",server_res,input_res);
+        for (name, ip) in network_interfaces.iter() {
+            if name == "wlp0s20f3"{
+                if ip.is_ipv4(){
+                    println!("HTTP Server hosted at https://{:?}:9231/", ip);
+                }
+            }
         }
-        Err(e)=>{
-            println!("Fehler in Tokio! err: {e}");
+    }
+    loop {
+        //TODO: tx und rx oneshot muss von Server-Funktion erstellt werden, damit der Server neugestartet werden kann
+        // -> tx muss dann auch neu an Input-Funktion übergeben werden
+        //Signal für shutdown
+        let (tx_shut, rx_shut) = oneshot::channel::<()>();
+
+        let http_server = tokio::spawn(http_server_setup(rx_shut));
+        let input = tokio::spawn(system_input(tx_shut));
+
+        let processing_res = tokio::try_join!(
+            flatten(http_server),
+            flatten(input)
+        );
+
+        match processing_res {
+            Ok((server_res, input_res)) => {
+                println!("Rückgabe = (Server: {:?}) (Input: {:?} ", server_res, input_res);
+                continue;
+            }
+            Err(e) => {
+                println!("Fehler in Tokio! err: {e}");
+                return;
+            }
         }
     }
 }
