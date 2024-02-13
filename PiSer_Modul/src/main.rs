@@ -1,15 +1,28 @@
-use std::any::type_name;
 use std::io::{stdout, BufWriter};
 use warp::{Filter, ws};
 use ferris_says::say;
-use futures::StreamExt;
+use futures::{SinkExt, StreamExt};
 use futures::stream::SplitSink;
 use warp::ws::{Message, WebSocket};
 use std::io;
-use std::net::Ipv4Addr;
 use tokio::task::JoinHandle;
 use tokio::sync::oneshot;
 use local_ip_address::list_afinet_netifas;
+
+//Experimentlell: Benutzerregistrierung:
+/*
+
+/// Our global unique user id counter.
+static NEXT_USER_ID: AtomicUsize = AtomicUsize::new(1);
+
+/// Our state of currently connected users.
+///
+/// - Key is their id
+/// - Value is a sender of `warp::ws::Message`
+type Users = Arc<RwLock<HashMap<usize, mpsc::UnboundedSender<Message>>>>;
+
+*/
+
 
 async fn system_input(tx_shut: oneshot::Sender<()>) -> Result<(), &'static str>{
     //TODO: Nachrichten eingeben und senden
@@ -36,6 +49,14 @@ async fn system_input(tx_shut: oneshot::Sender<()>) -> Result<(), &'static str>{
                 tx_shut.send(()).expect("Onshot tx_shut fehler");
                 return Ok(())
             }
+            "2"=>{
+                println!("Was soll gesendet werden?:");
+                let mut input=String::new();
+                io::stdin()
+                    .read_line(&mut input)
+                    .expect("fehler beim lesen der Eingabe");
+                //Senden der Nachricht über den Websocket
+            }
             _=>{
                 println!("Bitte gib eine gültige Zahl ein!");
                 continue;
@@ -44,12 +65,23 @@ async fn system_input(tx_shut: oneshot::Sender<()>) -> Result<(), &'static str>{
     }
 }
 
+/* # Hier ist der Endpunkt des Websockets "wss://[ip:port]/websocket"
+ */
 async fn handle_websocket_message(message:Message, tx: &mut SplitSink<WebSocket,Message>){
     println!("Nachricht empfangen: {:?}",message);
+    //TODO: Auswerten von Empfangenen Daten (auf allgemeingültige Vorschrift einigen)
+    // eine Art "Bibliothek"/"Dictionary" festlegen
+    // (evtl sogar in WSAM (RUST) -> damit ich das nur einmal festlegen muss?)
+    // tx für eine Reaktion...
 }
 
 async fn handle_client(web_socket: WebSocket){
+
     let (mut tx, mut rx) = web_socket.split();
+
+    //Senden einer Initialisierungsnachricht (zum Aufbauen der Website, welche Geräte vorhanden sind...)
+    let tx_message=Message::text("Hello Munke. Here is Rust!");
+    tx.send(tx_message).await.expect("failed to send init message");
 
     while let Some(body) = rx.next().await{
         let message = match body{
@@ -116,19 +148,29 @@ async fn main() {
             }
         }
     }
+
+    //multi-producer_single-consumer Queue anlegen Type: String; Größe: 1;
+    let (ws_sender_channel,mut ws_receiver_channel)=tokio::sync::mpsc::channel::<String>(1);
+
     loop {
         //TODO: tx und rx oneshot muss von Server-Funktion erstellt werden, damit der Server neugestartet werden kann
-        // -> tx muss dann auch neu an Input-Funktion übergeben werden
+        // -> tx muss dann auch neu an Input-Funktion übergeben werden?
         //Signal für shutdown
-        let (tx_shut, rx_shut) = oneshot::channel::<()>();
+        let (shut_channel_sender, shut_channel_receiver) = tokio::sync::oneshot::channel::<()>();
 
-        let http_server = tokio::spawn(http_server_setup(rx_shut));
-        let input = tokio::spawn(system_input(tx_shut));
+        let http_server = tokio::spawn(http_server_setup(shut_channel_receiver));
+        let input = tokio::spawn(system_input(shut_channel_sender));
 
         let processing_res = tokio::try_join!(
             flatten(http_server),
             flatten(input)
         );
+
+        //TODO: Schließroutine anlegen:
+        // -> websocket "schieß"-Nachricht absenden
+        // -> http-server stoppen?
+        // -> Programm beenden
+
 
         match processing_res {
             Ok((server_res, input_res)) => {
