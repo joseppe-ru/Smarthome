@@ -5,8 +5,9 @@ use futures::{SinkExt, StreamExt};
 use futures::stream::SplitSink;
 use warp::ws::{Message, WebSocket};
 use std::io;
+use std::sync::Arc;
 use tokio::task::JoinHandle;
-use tokio::sync::oneshot;
+use tokio::sync::{Mutex, oneshot};
 use local_ip_address::list_afinet_netifas;
 
 //Experimentlell: Benutzerregistrierung:
@@ -24,7 +25,7 @@ type Users = Arc<RwLock<HashMap<usize, mpsc::UnboundedSender<Message>>>>;
 */
 
 
-async fn system_input(tx_shut: oneshot::Sender<()>) -> Result<(), &'static str>{
+async fn system_input(shut_channel_tx: oneshot::Sender<()>) -> Result<(), &'static str>{
     //TODO: Nachrichten eingeben und senden
 
     loop{
@@ -41,12 +42,12 @@ async fn system_input(tx_shut: oneshot::Sender<()>) -> Result<(), &'static str>{
         match input.trim(){
             "0"=>{
                 println!("Input: 0; beenden");
-                tx_shut.send(()).expect("Onshot tx_shut fehler");
+                shut_channel_tx.send(()).expect("Onshot tx_shut fehler");
                 return Err("programm wird beendet")
             }
             "1"=>{
                 println!("Server is going to be restarted;");
-                tx_shut.send(()).expect("Onshot tx_shut fehler");
+                shut_channel_tx.send(()).expect("Onshot tx_shut fehler");
                 return Ok(())
             }
             "2"=>{
@@ -75,7 +76,7 @@ async fn handle_websocket_message(message:Message, tx: &mut SplitSink<WebSocket,
     // tx für eine Reaktion...
 }
 
-async fn handle_client(web_socket: WebSocket){
+async fn handle_client(web_socket: Arc<Mutex<Option<WebSocket>>>){
 
     let (mut tx, mut rx) = web_socket.split();
 
@@ -97,12 +98,19 @@ async fn handle_client(web_socket: WebSocket){
     println!("WebSocket verbindung unterbrochen");
 }
 
-async fn http_server_setup(rx_shut: oneshot::Receiver<()>) ->Result<(), &'static str> {
+async fn http_server_setup(shut_channel_rx: oneshot::Receiver<()>, socket_mutex: Arc<Mutex<Option<None>>>) ->Result<(), &'static str> {
     let ws_route = warp::path("websocket")
         .and(warp::ws())
         .map(|ws: ws::Ws|{
             println!("Connection was upgraded to websocket.");
-            ws.on_upgrade(handle_client)
+            ws.on_upgrade(async move |websocket: WebSocket|{
+
+                let mut socket_mutex = socket_mutex.lock().unwrap();
+                *socket_mutex = Some(websocket);
+
+                handle_client(Arc::clone(&socket_mutex)).await;
+                Ok(())
+            })
         });
 
     let curr_dir = std::env::current_dir().expect("failed to read current directory");
@@ -113,7 +121,7 @@ async fn http_server_setup(rx_shut: oneshot::Receiver<()>) ->Result<(), &'static
         .tls()
         .cert_path("cert.pem")
         .key_path("key.rsa")
-        .bind_with_graceful_shutdown(([0,0,0,0],9231),async { rx_shut.await.ok(); });
+        .bind_with_graceful_shutdown(([0,0,0,0],9231),async { shut_channel_rx.await.ok(); });
 
     println!("Adresse?: {addr}");
     // Spawn the server into a runtime
@@ -149,6 +157,8 @@ async fn main() {
         }
     }
 
+    //Mutex für den Kanal unten drunter
+    let socket_mutex:Arc<Mutex<Option<None>>> = Arc::new(Mutex::new(None));
     //multi-producer_single-consumer Queue anlegen Type: String; Größe: 1;
     let (ws_sender_channel,mut ws_receiver_channel)=tokio::sync::mpsc::channel::<String>(1);
 
@@ -158,7 +168,7 @@ async fn main() {
         //Signal für shutdown
         let (shut_channel_sender, shut_channel_receiver) = tokio::sync::oneshot::channel::<()>();
 
-        let http_server = tokio::spawn(http_server_setup(shut_channel_receiver));
+        let http_server = tokio::spawn(http_server_setup(shut_channel_receiver,socket_mutex));
         let input = tokio::spawn(system_input(shut_channel_sender));
 
         let processing_res = tokio::try_join!(
@@ -171,6 +181,13 @@ async fn main() {
         // -> http-server stoppen?
         // -> Programm beenden
 
+        /*
+        //Mutex überprüfen, ob ws verbunden ist
+            let socket_state = {
+        let socket = socket.lock().unwrap();
+        socket.is_some()
+    };
+        */
 
         match processing_res {
             Ok((server_res, input_res)) => {
