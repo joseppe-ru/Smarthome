@@ -8,6 +8,7 @@ use std::io;
 use tokio::task::JoinHandle;
 use tokio::sync::oneshot;
 use local_ip_address::list_afinet_netifas;
+use std::fs::File;
 
 //Cleverer Ansatz zum Server-ausgelösten übermitteln von daten:
 // ->beim initialisieren der websocket-Verbindung einen neuen Thread in dauerschleife startten
@@ -21,8 +22,6 @@ use local_ip_address::list_afinet_netifas;
 //  diersre Filter muss eine information über den auktuellen systemstatus enthalten
 
 async fn system_input(shut_channel_tx: oneshot::Sender<()>) -> Result<(), &'static str>{
-    //TODO: Nachrichten eingeben und senden
-
     loop{
         //Display Options
         println!("1 Restart HTTPServer");
@@ -68,9 +67,10 @@ async fn handle_client(web_socket: WebSocket){
         let (mut tx, mut rx) = web_socket.split();
 
         //Senden einer Initialisierungsnachricht (zum Aufbauen der Website, welche Geräte vorhanden sind)
-        //TODO: Diese Nachricht muss irgendwo auch statisch bzw. von anderswo generiert worden sein
-        let tx_message=Message::text("Hello Munke. Here is Rust!");
-        tx.send(tx_message).await.expect("failed to send init message");
+        //TODO: An dieser stelle die JSON Datenbank einlesen und weitergeben (oder vorher auswerten)
+        let db_json_file = std::fs::read_to_string("nosql_ids/db.json").unwrap(); //db-datei einlesen
+
+        tx.send(Message::text(db_json_file)).await.expect("failed to send init message");
 
         while let Some(body) = rx.next().await{
             let message = match body{
@@ -80,14 +80,14 @@ async fn handle_client(web_socket: WebSocket){
                     break;
                 }
             };
-            //TODO: evtl asynchron mit spawn ausführen, damit ich den Websocket wieder frei geben kann
             handle_websocket_message(message, &mut tx).await;
         }
-
         println!("WebSocket verbindung unterbrochen");
-
 }
 
+//TODO: irgendwie muss ich den Client noch registrieren???
+// -> gibt es eine UUID, evtl, eine ipv6, die ich überprüfen kann.
+// -> weil damit kann ich sicherstellen, dass sich hier niemand fremdes anmeddelt
 async fn http_server_setup(shut_channel_rx: oneshot::Receiver<()>) ->Result<(), &'static str> {
     let ws_route = warp::path("websocket")
         .and(warp::ws())

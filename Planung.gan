@@ -166,7 +166,7 @@ MS2: Alle Tests abgeschlossen!!
             <depend id="11" type="2" difference="0" hardness="Strong"/>
         </task>
         <task id="11" uid="a297b160104942c69cb8652d30f1c175" name="PiSer-Modul - Der Server" meeting="false" start="2024-02-15" duration="1" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true">
-            <task id="12" uid="2b8582e02dae4a58a8c269cfaaf65ee6" name="HTTP-Server" meeting="false" start="2024-02-15" duration="1" complete="0" thirdDate="2024-02-15" thirdDate-constraint="0" expand="true">
+            <task id="12" uid="2b8582e02dae4a58a8c269cfaaf65ee6" name="HTTP-Server" meeting="false" start="2024-02-15" duration="1" complete="0" thirdDate="2024-02-15" thirdDate-constraint="0" expand="false">
                 <notes><![CDATA[Der HTTP-Server ist mit dem Crate "warp" entstanden
 
 Schickt mir auf anfrage der URL (ist als Filter (Pfad) hardcoded) vom Client (JS, Browser) ein HTML-Dok mit JS code drin zu.
@@ -174,10 +174,19 @@ Schickt mir auf anfrage der URL (ist als Filter (Pfad) hardcoded) vom Client (JS
 
 
 ]]></notes>
+                <task id="29" uid="65e9079f0552442eb9236be0a3f42685" name="Mail-Client" meeting="false" start="2024-02-15" duration="1" complete="0" expand="true"/>
             </task>
             <task id="14" uid="61d05bcdf3c54a20b381598c26558507" name="Websocket" meeting="false" start="2024-02-15" duration="1" complete="0" thirdDate="2024-02-15" thirdDate-constraint="0" expand="true">
                 <notes><![CDATA[Für die Kommunikation zwischen JS (Client, Browser) und Server gedacht.
 (initialisierung, anfragen behandeln, ...)]]></notes>
+                <task id="32" uid="8baddc73cab948328d847fab3db5f7ba" name="Datenbank funktionen" meeting="false" start="2024-02-15" duration="1" complete="0" expand="true">
+                    <task id="34" uid="d6f9087e8ed8445fb97122086725dd16" name="Datnebank erstellen (Python)" meeting="false" start="2024-02-15" duration="1" complete="0" expand="true"/>
+                    <task id="33" uid="7215cc33e31a47f4ab6fa0e2cb51db78" name="Datenbank einlesen" meeting="false" start="2024-02-15" duration="1" complete="0" expand="true"/>
+                </task>
+                <task id="30" uid="a8a08a3c3443460b82106b1e11027fef" name="Array an Client senden" meeting="false" start="2024-02-15" duration="1" complete="0" thirdDate="2024-02-15" thirdDate-constraint="0" expand="true">
+                    <notes><![CDATA[Array mit ID's an Clients schicken, 
+damit dann Website dynamisch aufbauen]]></notes>
+                </task>
             </task>
             <task id="13" uid="1b5e550d77b840b88bf31910e0d93449" name="MQTT Broker" meeting="false" start="2024-02-15" duration="1" complete="0" thirdDate="2024-02-15" thirdDate-constraint="0" expand="true">
                 <notes><![CDATA[Mit MQTT möchte ich mehrere Netzwerkfähige geräte (Raspberrys, ESP's, ...) untereinander Kommunizieren lassen.
@@ -198,6 +207,20 @@ Für selbsständiges  schicken müsste ich im Server bein initialisieren einen s
 Die Website soll sich teilweise nach Vorgabe des Servers (Websocket, Initialiserungsnachricht) selbst aufbauen. 
 Wie  dynamisch ich das hinbekomme, kann ich nicht sagen. im Grunde geht das auch immer zur Last der Performance
 ]]></notes>
+            </task>
+            <task id="31" uid="647fb18f94a34b15bc19a7076e1e8e9a" name="Dynamisches Aufbauen von DOM-Elementen" meeting="false" start="2024-02-06" duration="1" complete="0" thirdDate="2024-02-06" thirdDate-constraint="0" expand="true">
+                <notes><![CDATA[ein Array kommt per Websocket 
+ -> aus den darin beschriebenen ID's muss ich dann die Website aufbauen
+
+oder gibt es eine bessere lösung mit datenbanken?
+
+Datenbank:
+ - Danebank anlegen (evtl no sql?)
+
+ - mit "use sqlx"
+ - Select abfrage machen
+ - JSON zurück geben
+ - per websocket versenden: send(Message::text(json_data.to_string()))]]></notes>
             </task>
             <task id="28" uid="7aeea397fc0548f9b80a49468df0e1e3" name="Speach-to-Text (kann jeder Browser)" meeting="false" start="2024-02-06" duration="1" complete="0" expand="true"/>
         </task>
