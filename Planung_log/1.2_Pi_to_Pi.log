@@ -7,3 +7,7 @@ mit python sehr einfach einen Server zu starten
 mit javascript etwas schwerer glaube ich, aber geht auch
 
 die Server könnte ich aber auch mit rust machen, geht evtl auch ganz gut
+
+-> Also am Besten wäre auf meinem PiSer-Modul in Rust ebenfalls den MQTT-Broker zu starten (Rust)
+-> ein Gerät mit Netzwerk-fähigkeit kann isch dann ja als gerät zum Publischen einloggen (Plattformanhängig, gerät muss netzwerfähig sein)
+-> der Client (JS) brauch ja bloß zu abbonieren (FrWeb-UI)
