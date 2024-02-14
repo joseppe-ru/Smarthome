@@ -60,6 +60,9 @@ async fn handle_websocket_message(message:Message, _tx: &mut SplitSink<WebSocket
     // eine Art "Bibliothek"/"Dictionary" festlegen
     // (evtl sogar in WSAM (RUST) -> damit ich das nur einmal festlegen muss?)
     // tx für eine Reaktion...
+
+
+    //TODO: eine Message soll bitte den Server neustarten -> weil datnebank neu einlesen???
 }
 
 async fn handle_client(web_socket: WebSocket){
@@ -80,6 +83,7 @@ async fn handle_client(web_socket: WebSocket){
                     break;
                 }
             };
+
             handle_websocket_message(message, &mut tx).await;
         }
         println!("WebSocket verbindung unterbrochen");
