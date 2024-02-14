@@ -1,79 +1,12 @@
 {"device_list":{
-    "0":{
+    "dev_000":{
         "dev_id":0,
-        "name":"RGB-Bettdecke",
-        "val_id":{
-            "4":{
-                "id":"4",
-                "name":"ON/OFF"
-            },
-            "5":{
-                "id":"5",
-                "name":"Rot"
-            },
-            "6":{
-                "id":"6",
-                "name":"Uran-farben"
-            },
-            "7":{
-                "id":"7",
-                "name":"Schwarz"
-            }
-        }
+        "type": "bout_bin",
+        "name":"Deckenlampe Schlafzimmer"
     },
-    "1":{
-        "dev_id":1,
-        "name":"Steckdose Minibar",
-        "val_id":{
-            "4":{
-                "id":"4",
-                "name":"ON/OFF"
-            },
-            "5":{
-                "id":"5",
-                "name":"kernschmelze"
-            },
-            "6":{
-                "id":"6",
-                "name":"Bierstand"
-            }
-        }
-    },
-    "2":{
-        "dev_id":2,
-        "name":"Steckdose Vibrator",
-        "val_id":{
-            "4":{
-                "id":"4",
-                "name":"ON/OFF"
-            },
-            "5":{
-                "id":"5",
-                "name":"ultraschall"
-            },
-            "6":{
-                "id":"6",
-                "name":"mehr Energie!!"
-            }
-        }
-    },
-    "3":{
-        "dev_id":3,
-        "name":"Strobo",
-        "val_id":{
-            "4":{
-                "id":"4",
-                "name":"ON/OFF"
-            },
-            "5":{
-                "id":"5",
-                "name":"Status"
-            },
-            "6":{
-                "id":"6",
-                "name":"Musiksteuerung"
-            }
-        }
+    "dev_001":{
+        "dev_id":64,
+        "type": "bout_xin",
+        "name":"Dimmer Küche"
     }
-    
 }}

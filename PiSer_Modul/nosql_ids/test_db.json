@@ -1,0 +1,26 @@
+{"device_list":
+  {
+    "0":{
+      "dev_id":0,
+      "name":"RGB-Bettdecke",
+      "val_id":{
+        "4":{
+          "id":"4",
+          "name":"ON/OFF"
+        },
+        "5":{
+          "id":"5",
+          "name":"Rot"
+        },
+        "6":{
+          "id":"6",
+          "name":"Uran-farben"
+        },
+        "7":{
+          "id":"7",
+          "name":"Schwarz"
+        }
+      }
+    }
+  }
+}

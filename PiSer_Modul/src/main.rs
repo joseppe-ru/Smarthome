@@ -104,7 +104,10 @@ async fn http_server_setup(shut_channel_rx: oneshot::Receiver<()>) ->Result<(), 
             )});
 
     let curr_dir = std::env::current_dir().expect("failed to read current directory");
-    let routes=warp::get().and(ws_route.or(warp::fs::dir(curr_dir.join("FrWeb-UI"))));
+
+    let routes=warp::get()
+        .and(ws_route
+            .or(warp::fs::dir(curr_dir.join("FrWeb-UI"))));
 
     //Certificate: openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.rsa -out cert.pem
     let (_,server)=warp::serve(routes)
