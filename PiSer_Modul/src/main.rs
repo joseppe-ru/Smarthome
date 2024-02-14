@@ -5,25 +5,20 @@ use futures::{SinkExt, StreamExt};
 use futures::stream::SplitSink;
 use warp::ws::{Message, WebSocket};
 use std::io;
-use std::sync::Arc;
 use tokio::task::JoinHandle;
-use tokio::sync::{Mutex, oneshot};
+use tokio::sync::oneshot;
 use local_ip_address::list_afinet_netifas;
 
-//Experimentlell: Benutzerregistrierung:
-/*
+//Cleverer Ansatz zum Server-ausgelösten übermitteln von daten:
+// ->beim initialisieren der websocket-Verbindung einen neuen Thread in dauerschleife startten
+//      -> dieser thread bekommt einen mpsc-Kanal übergeben
+//      -> semaphore stoppt den Thread
+//      -> senden einer nachricht, wenn semaphore gelöst wird??
 
-/// Our global unique user id counter.
-static NEXT_USER_ID: AtomicUsize = AtomicUsize::new(1);
 
-/// Our state of currently connected users.
-///
-/// - Key is their id
-/// - Value is a sender of `warp::ws::Message`
-type Users = Arc<RwLock<HashMap<usize, mpsc::UnboundedSender<Message>>>>;
-
-*/
-
+//andere idee zum aktualisieren..
+//  -> JS müsste regelmäßig einen Pfad(Filter) abfragen
+//  diersre Filter muss eine information über den auktuellen systemstatus enthalten
 
 async fn system_input(shut_channel_tx: oneshot::Sender<()>) -> Result<(), &'static str>{
     //TODO: Nachrichten eingeben und senden
@@ -50,14 +45,6 @@ async fn system_input(shut_channel_tx: oneshot::Sender<()>) -> Result<(), &'stat
                 shut_channel_tx.send(()).expect("Onshot tx_shut fehler");
                 return Ok(())
             }
-            "2"=>{
-                println!("Was soll gesendet werden?:");
-                let mut input=String::new();
-                io::stdin()
-                    .read_line(&mut input)
-                    .expect("fehler beim lesen der Eingabe");
-                //Senden der Nachricht über den Websocket
-            }
             _=>{
                 println!("Bitte gib eine gültige Zahl ein!");
                 continue;
@@ -68,7 +55,7 @@ async fn system_input(shut_channel_tx: oneshot::Sender<()>) -> Result<(), &'stat
 
 /* # Hier ist der Endpunkt des Websockets "wss://[ip:port]/websocket"
  */
-async fn handle_websocket_message(message:Message, tx: &mut SplitSink<WebSocket,Message>){
+async fn handle_websocket_message(message:Message, _tx: &mut SplitSink<WebSocket,Message>){
     println!("Nachricht empfangen: {:?}",message);
     //TODO: Auswerten von Empfangenen Daten (auf allgemeingültige Vorschrift einigen)
     // eine Art "Bibliothek"/"Dictionary" festlegen
@@ -76,54 +63,52 @@ async fn handle_websocket_message(message:Message, tx: &mut SplitSink<WebSocket,
     // tx für eine Reaktion...
 }
 
-async fn handle_client(web_socket: Arc<Mutex<Option<WebSocket>>>){
+async fn handle_client(web_socket: WebSocket){
 
-    let (mut tx, mut rx) = web_socket.split();
+        let (mut tx, mut rx) = web_socket.split();
 
-    //Senden einer Initialisierungsnachricht (zum Aufbauen der Website, welche Geräte vorhanden sind...)
-    let tx_message=Message::text("Hello Munke. Here is Rust!");
-    tx.send(tx_message).await.expect("failed to send init message");
+        //Senden einer Initialisierungsnachricht (zum Aufbauen der Website, welche Geräte vorhanden sind)
+        //TODO: Diese Nachricht muss irgendwo auch statisch bzw. von anderswo generiert worden sein
+        let tx_message=Message::text("Hello Munke. Here is Rust!");
+        tx.send(tx_message).await.expect("failed to send init message");
 
-    while let Some(body) = rx.next().await{
-        let message = match body{
-            Ok(msg)=>msg,
-            Err(e)=>{
-                println!("error reading websocket received message: {e}");
-                break;
-            }
-        };
-        handle_websocket_message(message, &mut tx).await;
-    }
+        while let Some(body) = rx.next().await{
+            let message = match body{
+                Ok(msg)=>msg,
+                Err(e)=>{
+                    println!("error reading websocket received message: {e}");
+                    break;
+                }
+            };
+            //TODO: evtl asynchron mit spawn ausführen, damit ich den Websocket wieder frei geben kann
+            handle_websocket_message(message, &mut tx).await;
+        }
 
-    println!("WebSocket verbindung unterbrochen");
+        println!("WebSocket verbindung unterbrochen");
+
 }
 
-async fn http_server_setup(shut_channel_rx: oneshot::Receiver<()>, socket_mutex: Arc<Mutex<Option<None>>>) ->Result<(), &'static str> {
+async fn http_server_setup(shut_channel_rx: oneshot::Receiver<()>) ->Result<(), &'static str> {
     let ws_route = warp::path("websocket")
         .and(warp::ws())
         .map(|ws: ws::Ws|{
             println!("Connection was upgraded to websocket.");
-            ws.on_upgrade(async move |websocket: WebSocket|{
+            ws.on_upgrade(move |websocket| async move {
 
-                let mut socket_mutex = socket_mutex.lock().unwrap();
-                *socket_mutex = Some(websocket);
-
-                handle_client(Arc::clone(&socket_mutex)).await;
-                Ok(())
-            })
-        });
+                handle_client(websocket).await;
+            }
+            )});
 
     let curr_dir = std::env::current_dir().expect("failed to read current directory");
     let routes=warp::get().and(ws_route.or(warp::fs::dir(curr_dir.join("FrWeb-UI"))));
 
     //Certificate: openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.rsa -out cert.pem
-    let (addr,server)=warp::serve(routes)
+    let (_,server)=warp::serve(routes)
         .tls()
         .cert_path("cert.pem")
         .key_path("key.rsa")
         .bind_with_graceful_shutdown(([0,0,0,0],9231),async { shut_channel_rx.await.ok(); });
 
-    println!("Adresse?: {addr}");
     // Spawn the server into a runtime
     tokio::task::spawn(server);
 
@@ -146,8 +131,8 @@ async fn main() {
         let writer = BufWriter::new(stdout.lock());
 
         say("Hello, Munke",12,writer).unwrap();
-        let network_interfaces = list_afinet_netifas().unwrap();
 
+        let network_interfaces = list_afinet_netifas().unwrap();
         for (name, ip) in network_interfaces.iter() {
             if name == "wlp0s20f3"{
                 if ip.is_ipv4(){
@@ -157,18 +142,14 @@ async fn main() {
         }
     }
 
-    //Mutex für den Kanal unten drunter
-    let socket_mutex:Arc<Mutex<Option<None>>> = Arc::new(Mutex::new(None));
-    //multi-producer_single-consumer Queue anlegen Type: String; Größe: 1;
-    let (ws_sender_channel,mut ws_receiver_channel)=tokio::sync::mpsc::channel::<String>(1);
-
     loop {
         //TODO: tx und rx oneshot muss von Server-Funktion erstellt werden, damit der Server neugestartet werden kann
         // -> tx muss dann auch neu an Input-Funktion übergeben werden?
-        //Signal für shutdown
+
+        //Signal-Kanal für shutdown
         let (shut_channel_sender, shut_channel_receiver) = tokio::sync::oneshot::channel::<()>();
 
-        let http_server = tokio::spawn(http_server_setup(shut_channel_receiver,socket_mutex));
+        let http_server = tokio::spawn(http_server_setup(shut_channel_receiver));
         let input = tokio::spawn(system_input(shut_channel_sender));
 
         let processing_res = tokio::try_join!(
@@ -178,20 +159,14 @@ async fn main() {
 
         //TODO: Schließroutine anlegen:
         // -> websocket "schieß"-Nachricht absenden
+        // -> Mutex für websocket freigeben
         // -> http-server stoppen?
         // -> Programm beenden
-
-        /*
-        //Mutex überprüfen, ob ws verbunden ist
-            let socket_state = {
-        let socket = socket.lock().unwrap();
-        socket.is_some()
-    };
-        */
 
         match processing_res {
             Ok((server_res, input_res)) => {
                 println!("Rückgabe = (Server: {:?}) (Input: {:?} ", server_res, input_res);
+
                 continue;
             }
             Err(e) => {

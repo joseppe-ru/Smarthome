@@ -115,5 +115,5 @@ Modul Plan:
 
 # PiSer-Modul (PSM)
   - TSL/SSL sicherheit bei zugriff auf website
-  - Zugriff von Handy (im selbern Netzwerk und von ausßerhalb) -> Zertifikat?
+  - Zugriff von Handy (im selbern Netzwerk und von ausßerhalb) -> Zertifikat? oder kann sich immer nur ein gerät auf den websockert verbinden?
   - 
