@@ -1,8 +1,10 @@
 //https://medium.com/@yuriy.voshch/building-an-mqtt-broker-from-scratch-with-rust-and-lunatic-part-1-bff5a2a58f61
 
 use std::io::{BufWriter, Read, stdout, Write};
+use std::time::Duration;
 use lunatic::net::TcpListener;
 use ferris_says::say;
+use lunatic::spawn_link;
 
 //Up-, und Downframe für MQTT (fix header, variable payload)
 /*
@@ -38,30 +40,39 @@ fn main()-> std::io::Result<()> {
     }
 
     let listener = TcpListener::bind("127.0.0.1:1883")?;
-    while let Ok((mut stream,_))=listener.accept(){
+    while let Ok((stream,_))=listener.accept(){
         println!("New Client Connected:{:?}",stream.peer_addr());
-        let mut buffer =[0;1024];
+        spawn_link!(|stream| connection_handler(stream));
+    }
+    Ok(())
+}
+
+fn connection_handler(mut stream: lunatic::net::TcpStream){
+    let mut buffer =[0;1024];
+    loop{
         match stream.read(&mut buffer) {
-            Ok(n) if n >0=>{
-                let message_type = buffer[0]>>4; //Typ der Nachricht????
-                let message_length=buffer[1];//nachrichtenlänge???
+            Ok(n) if n > 0 => {
+                let message_type = buffer[0] >> 4; //Typ der Nachricht????
+                let message_length = buffer[1];//nachrichtenlänge???
                 println!("Received message of type {message_type}, with length {message_length}");
                 match message_type {
-                    1=>{ //CONNECT Typ
-                        let ack_msg:Vec<u8>=vec![
+                    1 => { // Typ
+                        let ack_msg: Vec<u8> = vec![
                             0x20,
                             0x02,
                             0x00,
-                            0x00
+                            0x00,
                         ];
-                        stream.write(&ack_msg)?;
+                        stream.write(&ack_msg).expect("Failed to send Acknowledged");
+                        println!("Responded to CONNECT");
                     }
-                    t =>eprintln!("Unknown type of MQTT!"),
+                    t => eprintln!("Unknown type of MQTT!"),
                 }
             }
-            Ok(_)=>eprintln!("Nothing to read . . ."),
-            Err(e)=>eprintln!("unbekannter Fehler: {e}"),
+            Ok(_) => { eprintln!("Nothing to read . . .");
+                lunatic::sleep(Duration::from_secs(1)); //Bullshiat Statt sleep bracuhe ich irgendwas asynchrones????
+            },
+            Err(e) => eprintln!("unbekannter Fehler: {e}"),
         }
     }
-    Ok(())
 }

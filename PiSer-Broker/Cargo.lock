@@ -9,6 +9,7 @@ dependencies = [
  "ferris-says",
  "lunatic",
  "mqtt_packet_3_5",
+ "serde",
 ]
 
 [[package]]
