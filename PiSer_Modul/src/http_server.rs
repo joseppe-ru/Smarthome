@@ -1,0 +1,71 @@
+use futures::{SinkExt, StreamExt};
+use futures::stream::SplitSink;
+use tokio::sync::oneshot;
+use warp::{Filter, ws};
+use warp::ws::{Message, WebSocket};
+
+/* # Hier ist der Endpunkt des Websockets "wss://[ip:port]/websocket"
+ */
+async fn handle_websocket_message(message:Message, _tx: &mut SplitSink<WebSocket,Message>){
+    println!("Nachricht empfangen: {:?}",message);
+    //TODO: Auswerten von Empfangenen Daten (auf allgemeingültige Vorschrift einigen)
+    // eine Art "Bibliothek"/"Dictionary" festlegen
+    // (evtl sogar in WSAM (RUST) -> damit ich das nur einmal festlegen muss?)
+    // tx für eine Reaktion...
+
+
+    //TODO: eine Message soll bitte den Server neustarten -> weil datnebank neu einlesen???
+}
+
+async fn handle_client(web_socket: WebSocket){
+
+    let (mut tx, mut rx) = web_socket.split();
+
+    //Senden einer Initialisierungsnachricht (zum Aufbauen der Website, welche Geräte vorhanden sind)
+    let db_json_file = std::fs::read_to_string("nosql_ids/db.json").unwrap(); //db-datei einlesen
+
+    tx.send(Message::text(db_json_file)).await.expect("failed to send init message");
+
+    while let Some(body) = rx.next().await{
+        let message = match body{
+            Ok(msg)=>msg,
+            Err(e)=>{
+                println!("error reading websocket received message: {e}");
+                break;
+            }
+        };
+
+        handle_websocket_message(message, &mut tx).await;
+    }
+    println!("WebSocket verbindung unterbrochen");
+}
+
+pub async fn http_server_setup(shut_channel_rx: oneshot::Receiver<()>) ->Result<(), &'static str> {
+    let ws_route = warp::path("websocket")
+        .and(warp::ws())
+        .map(|ws: ws::Ws|{
+            println!("Connection was upgraded to websocket.");
+            ws.on_upgrade(move |websocket| async move {
+
+                handle_client(websocket).await;
+            }
+            )});
+
+    let curr_dir = std::env::current_dir().expect("failed to read current directory");
+
+    let routes=warp::get()
+        .and(ws_route
+            .or(warp::fs::dir(curr_dir.join("FrWeb-UI"))));
+
+    //Certificate: openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.rsa -out cert.pem
+    let (_,server)=warp::serve(routes)
+        .tls()
+        .cert_path("cert.pem")
+        .key_path("key.rsa")
+        .bind_with_graceful_shutdown(([0,0,0,0],9231),async { shut_channel_rx.await.ok(); });
+
+    // Spawn the server into a runtime
+    tokio::task::spawn(server);
+
+    return Ok(())
+}
