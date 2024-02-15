@@ -4,9 +4,57 @@
 		<title>FrWeb-UI</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="icon" type="image/x-icon" href="/favicon.ico">
+		<link rel="stylesheet" href="/style.css"></link>
 	</head>
 	<body>
-		<script src="./script.js">   // Den aktuellen statischen Pfad (von der Wurzel des Servers aus) abrufen
+		<script type="module" src="/script.js"></script>
+		<!-- Tab links -->
+		<div class="place">
+			<button class="roomlinks" onclick="open_room(event, 'Schlafzimmer')"><h1>Schlafzimmer</h1></button>
+			<button class="roomlinks" onclick="open_room(event, 'Wohnzimmer')"><h1>Wohnzimmer</h1></button>
+			<button class="roomlinks" onclick="open_room(event, 'Küche')"><h1>Küche</h1></button>
+			<button class="roomlinks" onclick="open_room(event, 'Arbeitszimmer')"><h1>Arbeitszimmer</h1></button>
+		</div>
+
+		<!-- Tab content -->
+		<div id="Schlafzimmer" class="room">
+		</div>
+
+		<div id="Wohnzimmer" class="room">
+		</div>
+
+		<div id="Küche" class="room">
+		</div>
+
+		<div id="Arbeitszimmer" class="room">
+		</div>
+
+		<script>
+			window.onload=open_room(event,'Schlafzimmer');
+			function open_room(evt, roomName) {
+				// Declare all variables
+				var i, room, roomlinks;
+
+				// Get all elements with class="room" and hide them
+				room = document.getElementsByClassName("room");
+				for (i = 0; i < room.length; i++) {
+					room[i].style.display = "none";
+				}
+
+				// Get all elements with class="roomlinks" and remove the class "active"
+				roomlinks = document.getElementsByClassName("roomlinks");
+				for (i = 0; i < roomlinks.length; i++) {
+					roomlinks[i].className = roomlinks[i].className.replace(" active", "");
+				}
+
+				// Show the current tab, and add an "active" class to the button that opened the tab
+				document.getElementById(roomName).style.display = "block";
+				if (evt!=null){
+					evt.currentTarget.className += " active";
+				}
+
+			}
 		</script>
 	</body>
 </html>

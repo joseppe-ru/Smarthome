@@ -7,9 +7,9 @@ Eine Methode die enthalten sein wird ist ein MQTT Broker, damit ich an Smarthome
 Smarthome-geräte mit cloud-protokollen werden auch noch eine Rollte spielen...]]></description>
     <view zooming-state="default:2" id="gantt-chart">
         <field id="tpd15" name="Notizen" width="20" order="0"/>
-        <field id="tpd3" name="Vorgang" width="406" order="0"/>
-        <field id="tpd5" name="Ende" width="153" order="1"/>
-        <field id="tpd9" name="Vorgänger" width="191" order="2"/>
+        <field id="tpd3" name="Vorgang" width="398" order="0"/>
+        <field id="tpd5" name="Ende" width="150" order="1"/>
+        <field id="tpd9" name="Vorgänger" width="187" order="2"/>
         <field id="tpd6" name="Dauer" width="50" order="3"/>
         <option id="filter.completedTasks" value="false"/>
         <option id="filter.dueTodayTasks" value="false"/>
@@ -166,7 +166,7 @@ MS2: Alle Tests abgeschlossen!!
             <depend id="11" type="2" difference="0" hardness="Strong"/>
         </task>
         <task id="11" uid="a297b160104942c69cb8652d30f1c175" name="PiSer-Modul - Der Server" meeting="false" start="2024-02-15" duration="1" complete="0" thirdDate="2024-02-14" thirdDate-constraint="0" expand="true">
-            <task id="12" uid="2b8582e02dae4a58a8c269cfaaf65ee6" name="HTTP-Server" meeting="false" start="2024-02-15" duration="1" complete="0" thirdDate="2024-02-15" thirdDate-constraint="0" expand="false">
+            <task id="12" uid="2b8582e02dae4a58a8c269cfaaf65ee6" name="HTTP-Server" meeting="false" start="2024-02-15" duration="1" complete="0" thirdDate="2024-02-15" thirdDate-constraint="0" expand="true">
                 <notes><![CDATA[Der HTTP-Server ist mit dem Crate "warp" entstanden
 
 Schickt mir auf anfrage der URL (ist als Filter (Pfad) hardcoded) vom Client (JS, Browser) ein HTML-Dok mit JS code drin zu.
@@ -175,6 +175,9 @@ Schickt mir auf anfrage der URL (ist als Filter (Pfad) hardcoded) vom Client (JS
 
 ]]></notes>
                 <task id="29" uid="65e9079f0552442eb9236be0a3f42685" name="Mail-Client" meeting="false" start="2024-02-15" duration="1" complete="0" expand="true"/>
+                <task id="35" uid="45e0a73ba64e4c5f89adf65f776a5c6e" name="Clients in Liste erfasssen" meeting="false" start="2024-02-15" duration="1" complete="0" thirdDate="2024-02-15" thirdDate-constraint="0" expand="true">
+                    <notes><![CDATA[mit einer UID und ab besten IP-Addresse]]></notes>
+                </task>
             </task>
             <task id="14" uid="61d05bcdf3c54a20b381598c26558507" name="Websocket" meeting="false" start="2024-02-15" duration="1" complete="0" thirdDate="2024-02-15" thirdDate-constraint="0" expand="true">
                 <notes><![CDATA[Für die Kommunikation zwischen JS (Client, Browser) und Server gedacht.

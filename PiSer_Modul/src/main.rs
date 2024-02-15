@@ -8,7 +8,6 @@ use std::io;
 use tokio::task::JoinHandle;
 use tokio::sync::oneshot;
 use local_ip_address::list_afinet_netifas;
-use std::fs::File;
 
 //Cleverer Ansatz zum Server-ausgelösten übermitteln von daten:
 // ->beim initialisieren der websocket-Verbindung einen neuen Thread in dauerschleife startten
@@ -70,7 +69,6 @@ async fn handle_client(web_socket: WebSocket){
         let (mut tx, mut rx) = web_socket.split();
 
         //Senden einer Initialisierungsnachricht (zum Aufbauen der Website, welche Geräte vorhanden sind)
-        //TODO: An dieser stelle die JSON Datenbank einlesen und weitergeben (oder vorher auswerten)
         let db_json_file = std::fs::read_to_string("nosql_ids/db.json").unwrap(); //db-datei einlesen
 
         tx.send(Message::text(db_json_file)).await.expect("failed to send init message");
@@ -147,6 +145,7 @@ async fn main() {
                 }
             }
         }
+        println!("HTTP Server hosted at https://localhost:9231/");
     }
 
     loop {
