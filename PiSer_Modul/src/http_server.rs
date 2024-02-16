@@ -8,13 +8,16 @@ use warp::ws::{Message, WebSocket};
  */
 async fn handle_websocket_message(message:Message, _tx: &mut SplitSink<WebSocket,Message>){
     println!("Nachricht empfangen: {:?}",message);
-    //TODO: Auswerten von Empfangenen Daten (auf allgemeingültige Vorschrift einigen)
-    // eine Art "Bibliothek"/"Dictionary" festlegen
-    // (evtl sogar in WSAM (RUST) -> damit ich das nur einmal festlegen muss?)
-    // tx für eine Reaktion...
 
-
-    //TODO: eine Message soll bitte den Server neustarten -> weil datnebank neu einlesen???
+    //nachricht = Zahl?
+    //Zuordnung über datenbank
+    //weiterleiten der Nachricht
+    if message.is_binary(){
+        let binary: Vec<u8> = message.into();
+        for val in binary{
+            println!("{}",val);
+        }
+    }
 }
 
 async fn handle_client(web_socket: WebSocket){

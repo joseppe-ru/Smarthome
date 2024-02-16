@@ -14,7 +14,6 @@ class Device_class_Parent {
 
     //ausführen der Funktionalität
     event(ws){
-        console.log("Häää?")
     }
 }
 
@@ -38,6 +37,10 @@ export class Schalter extends Device_class_Parent{
 
     event(ws) {
         console.log(this.Name, this.ID, this.Type);
-        ws.send(this.Name+this.ID+this.Type+" has been pressed")
+        let buf = new ArrayBuffer(8);
+        for (let i=0;i<8;i++){
+            buf[i]=i
+        }
+        ws.send(buf)
     }
 }
