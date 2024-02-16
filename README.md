@@ -1,12 +1,15 @@
 # Project Smarthome
 
 Selbstprogrammiertes Smarthome soll auf Basis eines Raspberry Pi's laufen.
-Ich hab mir hier sehr viel Vorgenommen:
-	- WebServer mit rust
-	- Website als UI
-	- Raspi als host
-	- Ein script oder was auch immer, was mir Smarthome-Geräte anbinden kann (jeglicher Art)
-	- ein Programm, was mir einen anderen Raspi im Netzwerk anzeigt als Smart-Gerät
-	-> und dann kann ich mich hier richtig austoben
+Workaround:
+  - HTTP-Server mit Websocket in Rust
+  - Datenbank (JSON-Datei), in der ich neue Geräte, die ich einrichten möchte hinzufüge
+  - Website mit JavaScript, baut sich dynamisch nach den angeben aus der Datenbank auf
+  - MQTT-Broker in Rust (parallel zum HTTP-Server)
+  - Javascipt-MQTT-Client für Benutzer (Darstellung von Daten der Smarthomegeräte und senden von Steuerungssignalen)
+  - MQTT-Client für Raspberry (oder andere WIFI fähige Geräte/Mikrocontroller)
+  - MQTT-Client-Endgeräte haben andere Kommunikatinsprotokolle implementiert, die die Verbindung zur Hardware/den Steuerungsendgeräten herstellt.
 
--> bin ja gerade noch mitten im Studium, also mal sehen, wie schnell ich es wieder aufgebe XD 
+MQTT soll als das Kommunikationsmittel für das Benutzerinterface dienen, alle anderen Funktionaitäten sind dann in den MQTT-Client-Endgeräten implementiert (Funkanbindung zu einem Schalter, SPI zum Arduino, BLE, BLE Mesh?, IR,...)
+Alle Parameter, die zur Steuerung (über verschiedene Protokolle hinweg) des Smarthomes/anteuerung der Geräte notwendig sind, sollen in der JSON-Datenbank festgehalten werden.
+Die Datenbank wird per Websocket an den HTTP-Client übermitteln und in JavaScript in Für die Geräte angepasste Klassen übergeben.
