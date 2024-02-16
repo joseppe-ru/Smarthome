@@ -13,7 +13,8 @@ class Device_class_Parent {
     }
 
     //ausführen der Funktionalität
-    event(){
+    event(ws){
+        console.log("Häää?")
     }
 }
 
@@ -35,7 +36,8 @@ export class Schalter extends Device_class_Parent{
         return sw
     }
 
-    event() {
+    event(ws) {
         console.log(this.Name, this.ID, this.Type);
+        ws.send(this.Name+this.ID+this.Type+" has been pressed")
     }
 }

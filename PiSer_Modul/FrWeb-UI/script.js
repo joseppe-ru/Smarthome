@@ -1,31 +1,37 @@
-import {Schalter} from '/device_classes.js';
+import {Schalter} from "/device_classes.js";
 import mqtt from "/mqtt.js  ";
 
 const BACKEND_URL_WS ="wss://"+ window.location.hostname+":9231/" //Basis-Pfad für den Server
-const BACKEND_URL_MQTT="mqtt://"+window.location.hostname+":1884/"
+const BACKEND_URL_MQTT="mqtts://"+window.location.hostname+":1884/"
 
 //öffnet den initialisierungs Websocket
 const init_ws_socket = new WebSocket(BACKEND_URL_WS+"websocket")
 //Webscoket Callbacks/Events hinzufügen
-init_ws_socket.onopen=()=>{console.log("init_Websocket opened")}
+init_ws_socket.onopen=()=>{console.log("init_Websocket opened");init_ws_socket.send("connected client")}
 init_ws_socket.onmessage=(msg)=>handle_server_message(msg)
 init_ws_socket.onerror=(err)=>console.error("init_Websocket: err: ",err)
 init_ws_socket.onclose=()=>console.log("init_Websocket closed")
 
-//MQTT-Client einrichten
-const options = {
-    // Clean session
-    clean: true,
-    connectTimeout: 4000,
-    // Authentication
-    clientId: 'emqx_test',
-    username: 'emqx_test',
-    password: 'emqx_test',
+let clientId="mqtt_17725"
+
+let options={
+    keepalive:60,
+    clientId,
+    protocolId:'MQTT',
+    protocolVersion:4,
+    clear:true,
+    reconnectPeriod: 1000,
+    connectTimeout: 1000,
+    will:{
+        topic:'test',
+        payload:'connection closed abnormaly',
+        qos:0,
+        retain:false
+    },
+    rejectUnauthorized:false
 }
-const mqtt_client = mqtt.connect(BACKEND_URL_MQTT,options)
-
+const mqtt_client = mqtt.connect(BACKEND_URL_MQTT)
 console.log(mqtt_client)
-
 //Dieses Array beinhaltet alle Geräte, die eingerichtet worden (also die Objekte der Klassen)
 const all_devices = [];
 
@@ -33,7 +39,7 @@ const all_devices = [];
 function handle_events(e){
     for (let i=0;i<all_devices.length;i++){
         if (all_devices[i].ID == e.currentTarget.id){
-            all_devices[i].event();
+            all_devices[i].event(init_ws_socket);
         }
     }
 }
@@ -83,6 +89,7 @@ function create_device(dev){
             dom_obj.addEventListener('click',handle_events)
             //Das Gerät einer internen Geräteliste anfügen
             all_devices.push(_switch)
+
         }
     }
 }
