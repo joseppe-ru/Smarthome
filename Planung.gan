@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="Project_Smarthome" company="" webLink="http://" view-date="2024-02-06" view-index="0" gantt-divider-location="801" resource-divider-location="300" version="3.3.3300" locale="de_DE">
+<?xml version="1.0" encoding="UTF-8"?><project name="Project_Smarthome" company="" webLink="http://" view-date="2024-02-06" view-index="0" gantt-divider-location="786" resource-divider-location="300" version="3.3.3300" locale="de_DE">
     <description><![CDATA[Smarthomesteuerung auf grundlage eines Raspebrry (mit OS)
 Herzstück setellt der Rust-Server dar, welcher die Benutzeroerfläche hostet.
 Der Server stellt ausßerdem das Bindeglied zwischen Clients für eingabe/ausgabe(UI,website,JS) und den Endgeräten
@@ -7,14 +7,15 @@ Eine Methode die enthalten sein wird ist ein MQTT Broker, damit ich an Smarthome
 Smarthome-geräte mit cloud-protokollen werden auch noch eine Rollte spielen...]]></description>
     <view zooming-state="default:2" id="gantt-chart">
         <field id="tpd15" name="Notizen" width="20" order="0"/>
-        <field id="tpd3" name="Vorgang" width="398" order="0"/>
-        <field id="tpd5" name="Ende" width="150" order="1"/>
-        <field id="tpd9" name="Vorgänger" width="187" order="2"/>
+        <field id="tpd3" name="Vorgang" width="390" order="0"/>
+        <field id="tpd5" name="Ende" width="147" order="1"/>
+        <field id="tpd9" name="Vorgänger" width="183" order="2"/>
         <field id="tpd6" name="Dauer" width="50" order="3"/>
         <option id="filter.completedTasks" value="false"/>
         <option id="filter.dueTodayTasks" value="false"/>
         <option id="filter.overdueTasks" value="false"/>
         <option id="filter.inProgressTodayTasks" value="false"/>
+        <timeline><![CDATA[31]]></timeline>
     </view>
     <view id="resource-table">
         <field id="0" name="Ressource" width="210" order="0"/>
@@ -178,6 +179,10 @@ Schickt mir auf anfrage der URL (ist als Filter (Pfad) hardcoded) vom Client (JS
                 <task id="35" uid="45e0a73ba64e4c5f89adf65f776a5c6e" name="Clients in Liste erfasssen" meeting="false" start="2024-02-15" duration="1" complete="0" thirdDate="2024-02-15" thirdDate-constraint="0" expand="true">
                     <notes><![CDATA[mit einer UID und ab besten IP-Addresse]]></notes>
                 </task>
+                <task id="36" uid="b5a9c0e6ba154f86a453d109271ce567" name="überragen in lunatic" meeting="false" start="2024-02-15" duration="1" complete="0" thirdDate="2024-02-15" thirdDate-constraint="0" expand="true">
+                    <notes><![CDATA[Lunatic steht im Gegensatz zu tokio und bietet für diese Anwendungne mehr comfort
+Der MQTT Broker arbeitet bereits mit lunatic, da mässte ich das Projekt mit HTTP-Server und Websocket irgendwie übertragen]]></notes>
+                </task>
             </task>
             <task id="14" uid="61d05bcdf3c54a20b381598c26558507" name="Websocket" meeting="false" start="2024-02-15" duration="1" complete="0" thirdDate="2024-02-15" thirdDate-constraint="0" expand="true">
                 <notes><![CDATA[Für die Kommunikation zwischen JS (Client, Browser) und Server gedacht.
@@ -196,8 +201,8 @@ damit dann Website dynamisch aufbauen]]></notes>
 ]]></notes>
             </task>
         </task>
-        <task id="18" uid="e4bcc4cf765445049e63ae42e954954f" name="FrWeb-UI" meeting="false" start="2024-02-06" duration="1" complete="0" expand="true">
-            <task id="27" uid="f7ba91f461744bf995dd87bf7819bade" name="Recherche" meeting="false" start="2024-02-06" duration="1" complete="0" thirdDate="2024-02-06" thirdDate-constraint="0" expand="true">
+        <task id="18" uid="e4bcc4cf765445049e63ae42e954954f" name="FrWeb-UI" meeting="false" start="2024-02-06" duration="1" complete="50" expand="true">
+            <task id="27" uid="f7ba91f461744bf995dd87bf7819bade" name="Recherche" meeting="false" start="2024-02-06" duration="1" complete="100" thirdDate="2024-02-06" thirdDate-constraint="0" expand="true">
                 <notes><![CDATA[Ich könnte mich von Website zu Rust unterhalten
  -> dafür benutze ich Websockets.
 
@@ -211,7 +216,7 @@ Die Website soll sich teilweise nach Vorgabe des Servers (Websocket, Initialiser
 Wie  dynamisch ich das hinbekomme, kann ich nicht sagen. im Grunde geht das auch immer zur Last der Performance
 ]]></notes>
             </task>
-            <task id="31" uid="647fb18f94a34b15bc19a7076e1e8e9a" name="Dynamisches Aufbauen von DOM-Elementen" meeting="false" start="2024-02-06" duration="1" complete="0" thirdDate="2024-02-06" thirdDate-constraint="0" expand="true">
+            <task id="31" uid="647fb18f94a34b15bc19a7076e1e8e9a" name="Dynamisches Aufbauen von DOM-Elementen" meeting="false" start="2024-02-06" duration="1" complete="100" thirdDate="2024-02-06" thirdDate-constraint="0" expand="true">
                 <notes><![CDATA[ein Array kommt per Websocket 
  -> aus den darin beschriebenen ID's muss ich dann die Website aufbauen
 
@@ -226,6 +231,9 @@ Datenbank:
  - per websocket versenden: send(Message::text(json_data.to_string()))]]></notes>
             </task>
             <task id="28" uid="7aeea397fc0548f9b80a49468df0e1e3" name="Speach-to-Text (kann jeder Browser)" meeting="false" start="2024-02-06" duration="1" complete="0" expand="true"/>
+            <task id="37" uid="bfe3f2de531245e8aa5ddce58c3817d9" name="Design-Update" meeting="false" start="2024-02-06" duration="1" complete="0" thirdDate="2024-02-06" thirdDate-constraint="0" expand="true">
+                <notes><![CDATA[gannze Benutzeroberfläche sihet Kacke aus]]></notes>
+            </task>
         </task>
         <task id="19" uid="fb07dcae13f747afa70bcd4ef37f3af0" name="Nice-Face" meeting="false" start="2024-02-09" duration="1" complete="0" expand="false">
             <task id="23" uid="17a0e564cf3a402392d844c6d77ee83f" name="Recherche" meeting="false" start="2024-02-09" duration="1" complete="0" thirdDate="2024-02-09" thirdDate-constraint="0" expand="true">

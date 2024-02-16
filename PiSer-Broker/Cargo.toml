@@ -1,5 +1,5 @@
 [package]
-name = "PiSer-Broker"
+name = "pi_ser-Broker"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,6 +7,6 @@ edition = "2021"
 
 [dependencies]
 ferris-says = "0.3.1"
-lunatic = "0.14.1"
-mqtt_packet_3_5 = "0.2.2"
-serde = "1.0.196"
+lunatic = "0.13.1"
+mqtt_packet_3_5 = {version = "0.2.2", features = ["serde", "serde_support"]}
+serde = "1.0.162"
