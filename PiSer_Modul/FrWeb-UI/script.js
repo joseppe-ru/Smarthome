@@ -1,24 +1,29 @@
 import {Schalter} from "/device_classes.js";
+//import * as Paho from "/paho_mqtt_lib/paho-mqtt.js"
+//import * as Paho from "/paho_mqtt_lib/paho-mqtt-min.js"
 
 const BACKEND_URL_WS ="wss://"+ window.location.hostname+":9231/" //Basis-Pfad für den Server
-const BACKEND_URL_MQTT = "wss://"+window.location.hostname+":1884"
 
-const options = {
-    clean: true,
-    protocolVersion: 3, 
-    protocol:  'wss',
-    type: 'Connect',
-    QoS:3,
-};
+const client=new Paho.MQTT.Client('127.0.0.1',1884,'/',"FrWeb-UI");
 
-//mit MQTT-Broker verbinden
-const client = mqtt.connect(BACKEND_URL_MQTT,options)
-
-//MQTT Events hinzufügen
-client.on('connect', function () {
-    console.log('Connected to MQTT broker');
-    // Hier kannst du Aktionen nach erfolgreicher Verbindung durchführen
+client.connect({
+    onSuccess: onConnect,
+    onFailure: onFailure,
 });
+
+client.onMessageArrived=function handle_mqtt_message(e) {
+
+    console.log(e._getPayloadString())
+}
+
+function onConnect() {
+    console.log('Connected to MQTT broker');
+    client.subscribe('test', { qos: 1 });
+}
+
+function onFailure(errorMessage) {
+    console.error('Failed to connect to MQTT broker:', errorMessage);
+}
 
 //öffnet den initialisierungs Websocket
 const socket = new WebSocket(BACKEND_URL_WS+"websocket")

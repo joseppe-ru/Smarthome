@@ -14,9 +14,10 @@
         "type": "Schalter",
         "name":"TVSteckdose"
     },
-    "dev_064":{
-        "dev_id":64,
-        "type": "bout_xin",
-        "name":"Dimmer Küche"
+    "Steckdose":{
+        "dev_id":99,
+        "type": "Schalter",
+        "name":"E_Auto",
+        "größe": 5
     }
 }}

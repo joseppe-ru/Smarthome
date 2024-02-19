@@ -41,7 +41,7 @@ export class Schalter extends Device_class_Parent{
     event(ws) {
         console.log(this.Name, this.ID, this.Type);
         //daten als JSON versenden
-
+        mqtt.publish()
         ws.send(this.Data_to_Bytearray())
     }
 

@@ -60,13 +60,13 @@ impl Client {
 
     // this function will either deliver the packet or crash
     // because there's not much we can do if the client delivered an
+    // because there's not much we can do if the client delivered an
+    // because there's not much we can do if the client ddelivered an
     // invalid packet
     fn read_connect_packet(mut stream: TcpStream) -> ConnectPacket {
-        // use the mqtt_packet_3_5 reader
-        //let mut buffer = Vec::new();
-        //stream.read_to_end(&mut buffer).expect("failed to parse Stream");
-        //println!("Received mqtt Connect Bytes: {:?}",buffer);
+
         let mut packet_decoder = PacketDecoder::from_stream(stream);
+
         match packet_decoder.decode_packet(3) {
             Ok(MqttPacket::Connect(connect)) => connect,
             Ok(packet) => panic!("Client sent incorrect packet as initial packet {packet:?}"),
