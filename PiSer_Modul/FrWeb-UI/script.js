@@ -1,6 +1,24 @@
 import {Schalter} from "/device_classes.js";
 
 const BACKEND_URL_WS ="wss://"+ window.location.hostname+":9231/" //Basis-Pfad für den Server
+const BACKEND_URL_MQTT = "wss://"+window.location.hostname+":1884"
+
+const options = {
+    clean: true,
+    protocolVersion: 3, 
+    protocol:  'wss',
+    type: 'Connect',
+    QoS:3,
+};
+
+//mit MQTT-Broker verbinden
+const client = mqtt.connect(BACKEND_URL_MQTT,options)
+
+//MQTT Events hinzufügen
+client.on('connect', function () {
+    console.log('Connected to MQTT broker');
+    // Hier kannst du Aktionen nach erfolgreicher Verbindung durchführen
+});
 
 //öffnet den initialisierungs Websocket
 const socket = new WebSocket(BACKEND_URL_WS+"websocket")
@@ -8,7 +26,10 @@ const socket = new WebSocket(BACKEND_URL_WS+"websocket")
 socket.onopen=()=>{console.log("init_Websocket opened");socket.send("connected client")}
 socket.onmessage=(msg)=>handle_server_message(msg)
 socket.onerror=(err)=>console.error("init_Websocket: err: ",err)
-socket.onclose=()=>console.log("init_Websocket closed")
+socket.onclose=()=> {
+    console.log("Websocket closed");
+    window.location.reload();
+}
 
 //Dieses Array beinhaltet alle Geräte, die eingerichtet worden (also die Objekte der Klassen)
 const all_devices = [];

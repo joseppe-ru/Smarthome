@@ -15,6 +15,9 @@ class Device_class_Parent {
     //ausführen der Funktionalität
     event(ws){
     }
+
+    //Konvertieren der zu sendenden Werte in ein Bytearray
+    Data_to_Bytearray(){}
 }
 
 export class Schalter extends Device_class_Parent{
@@ -37,10 +40,16 @@ export class Schalter extends Device_class_Parent{
 
     event(ws) {
         console.log(this.Name, this.ID, this.Type);
-        let buf = new ArrayBuffer(8);
-        for (let i=0;i<8;i++){
-            buf[i]=i
+        //daten als JSON versenden
+
+        ws.send(this.Data_to_Bytearray())
+    }
+
+    Data_to_Bytearray(toggle_state) {
+        let bytes=new Uint8Array(8)
+        for (let i=0;i<bytes.length;i++){
+            bytes[i]=i;
         }
-        ws.send(buf)
+        return bytes
     }
 }

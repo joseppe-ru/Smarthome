@@ -3,21 +3,60 @@ use futures::stream::SplitSink;
 use tokio::sync::oneshot;
 use warp::{Filter, ws};
 use warp::ws::{Message, WebSocket};
+use serde_json;
+use serde::de::DeserializeOwned;
+use std::fs::File;
+use std::io::Read;
+use rustc_serialize::json::Json;
 
 /* # Hier ist der Endpunkt des Websockets "wss://[ip:port]/websocket"
  */
 async fn handle_websocket_message(message:Message, _tx: &mut SplitSink<WebSocket,Message>){
-    println!("Nachricht empfangen: {:?}",message);
 
-    //nachricht = Zahl?
+    //message.my_protokoll_sting?
     //Zuordnung über datenbank
     //weiterleiten der Nachricht
-    if message.is_binary(){
-        let binary: Vec<u8> = message.into();
-        for val in binary{
-            println!("{}",val);
+    if message.is_text() {
+        println!("Nachricht empfangen: {:?}",message);
+    }else if message.is_binary() {
+        println!("Daten empfangen...");
+
+        //message entschlüsseln
+        //vergleich mit Datenbank
+        //alle notwendigen Informationen aus datenbank (zum Senden)
+        //angehängte Nachricht schicken bzw. Nachrichten sind hier ja schon Gerätespezifisch
+
+        //alle informationen, die ich brauche/haben will aus Datenbank ziehen/Vergleichen
+        let mut file = File::open("nosql_ids/db.json").expect("Fehler beim Öffnen");
+        let mut data = String::new();
+        file.read_to_string(&mut data).expect("Fehler beim parsen in String");
+
+        let json:serde_json::Value = serde_json::from_str(&data).expect("schuwidder e fahler");
+        if let Some(dev_list)=json.as_object(){
+            for (key,val) in dev_list{
+                println!("list:{}",key);
+                if let Some(device) = val.as_object(){
+                    for (key,val)in device{
+                        println!("dev: {}",key);
+                        if let Some(prop)=val.as_object(){
+                            for (key,val)in prop{
+                                println!("prop: {}, val: {}",key,val);
+                                //prop mit dev_id und val mit empfangener id aus message vergleichen
+                                //dann kenne ich das Gerät und brauche dann nur noch die darauf folgenden parameter, welche zum Senden per mqtt wichtig sind.
+                                //die nachricht muss noch aus empfangener message rausgezogen werden
+
+                            }
+                        }
+                    }
+                }
+            }
         }
+
+        println!("")
+    }else {
+        eprintln!("Websocket daten in unbekanntem Format!")
     }
+
 }
 
 async fn handle_client(web_socket: WebSocket){

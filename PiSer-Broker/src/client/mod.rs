@@ -6,6 +6,7 @@ use crate::message_queue::MessageQueue;
 use lunatic::{ap::ProcessRef, net::TcpStream, spawn_link, AbstractProcess};
 use mqtt_packet_3_5::{ConnackPacket, ConnectPacket, MqttPacket, PacketDecoder};
 use serde::{Deserialize, Serialize};
+use std::io::Read;
 
 pub mod tcp_stream_reader;
 pub mod tcp_stream_writer;
@@ -60,8 +61,11 @@ impl Client {
     // this function will either deliver the packet or crash
     // because there's not much we can do if the client delivered an
     // invalid packet
-    fn read_connect_packet(stream: TcpStream) -> ConnectPacket {
+    fn read_connect_packet(mut stream: TcpStream) -> ConnectPacket {
         // use the mqtt_packet_3_5 reader
+        //let mut buffer = Vec::new();
+        //stream.read_to_end(&mut buffer).expect("failed to parse Stream");
+        //println!("Received mqtt Connect Bytes: {:?}",buffer);
         let mut packet_decoder = PacketDecoder::from_stream(stream);
         match packet_decoder.decode_packet(3) {
             Ok(MqttPacket::Connect(connect)) => connect,
