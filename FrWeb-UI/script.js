@@ -1,4 +1,4 @@
-import {Schalter} from "/device_classes.js";
+import {Schalter} from "/FrWeb-UI/device_classes.js";
 //import * as Paho from "/paho_mqtt_lib/paho-mqtt.js"
 //import * as Paho from "/paho_mqtt_lib/paho-mqtt-min.js"
 

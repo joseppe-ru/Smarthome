@@ -6,6 +6,7 @@ use warp::ws::{Message, WebSocket};
 use serde_json;
 use serde::de::DeserializeOwned;
 use std::fs::File;
+use std::fs;
 use std::io::Read;
 use rustc_serialize::json::Json;
 
@@ -82,6 +83,15 @@ async fn handle_client(web_socket: WebSocket){
     println!("WebSocket verbindung unterbrochen");
 }
 
+fn get_mime_type(file_path: &str) -> &str {
+    match Path::new(file_path).extension().and_then(|ext| ext.to_str()) {
+        Some("html") => "text/html;charset=utf-8",
+        Some("css") => "text/css;charset=utf-8",
+        Some("js") => "application/javascript;charset=utf-8",
+        _ => "application/octet-stream;charset=utf-8",
+    }
+}
+
 pub async fn http_server_setup(shut_channel_rx: oneshot::Receiver<()>) ->Result<(), &'static str> {
     let ws_route = warp::path("websocket")
         .and(warp::ws())
@@ -95,9 +105,34 @@ pub async fn http_server_setup(shut_channel_rx: oneshot::Receiver<()>) ->Result<
 
     let curr_dir = std::env::current_dir().expect("failed to read current directory");
 
+
+    let backüath=std::path::Path::new("../");
+    let curr_dir=std::env::current_dir().expect("failed to read current directory");
+    let project_folder=curr_dir.join(backüath).join("FrWeb-UI");
+
+    if !project_folder.is_dir(){
+        panic!("kein pfad...");
+    }
+
+
+
+    let routes = warp::get()
+        .and(warp::fs::dir(project_folder))
+        .map(move |reply:warp::reply::Response| {
+            let mime_type = get_mime_type(reply.path().to_str().unwrap_or(""));
+            warp::reply::with_header(reply, "Content-Type", mime_type)
+        });
+
+/*
+
+    let html_content = fs::read_to_string(project_folder.join("index.html"))
+        .expect("Fehler beim Lesen der HTML-Datei");
+
     let routes=warp::get()
         .and(ws_route
-            .or(warp::fs::dir(curr_dir.join("FrWeb-UI"))));
+            .or(warp::fs::dir(project_folder)));
+
+*/
 
     //Certificate: openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.rsa -out cert.pem
     let (_,server)=warp::serve(routes)
@@ -108,6 +143,7 @@ pub async fn http_server_setup(shut_channel_rx: oneshot::Receiver<()>) ->Result<
 
     // Spawn the server into a runtime
     tokio::task::spawn(server);
+
 
     return Ok(())
 }
