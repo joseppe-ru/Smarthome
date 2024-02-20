@@ -8,10 +8,11 @@
 		<link rel="stylesheet" href="/style.css"></link>
 		<!--<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>-->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+		<script src="./device_classes.js"></script>
 	</head>
 	<body>
 
-		<script type="module" src="/script.js"></script>
+		<script type="module" src="./script.js"></script>
 		<!-- Tab links -->
 		<div class="place">
 			<button class="roomlinks" onclick="open_room(event, 'Schlafzimmer')"><h1>Schlafzimmer</h1></button>
@@ -34,6 +35,10 @@
 		</div>
 
 		<script>
+			//import { Schalter } from './device_classes.js';
+
+			//let dev_test = new Schalter("fisch")
+			//console.log(dev_test)
 			window.onload=open_room(event,'Schlafzimmer');
 			function open_room(evt, roomName) {
 				// Declare all variables

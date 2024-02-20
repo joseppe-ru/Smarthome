@@ -67,10 +67,20 @@ impl Client {
 
         let mut packet_decoder = PacketDecoder::from_stream(stream);
 
+        while packet_decoder.has_more(){
+            match packet_decoder.decode_packet(5){
+                Ok(MqttPacket::Connect(connect)) => {println!("Connect Packet gefunden"); return connect },
+                Ok(packet) => { panic!("Client sent incorrect packet as initial packet {packet:?}") },
+                Err(e) => { panic!("Malformed packet received from client! Error details: {e}") },
+            }
+        }
+        panic!("halt stop")
+        /*
         match packet_decoder.decode_packet(3) {
             Ok(MqttPacket::Connect(connect)) => connect,
             Ok(packet) => panic!("Client sent incorrect packet as initial packet {packet:?}"),
             Err(e) => panic!("Malformed packet received from client! Error details: {e}"),
         }
+        */
     }
 }

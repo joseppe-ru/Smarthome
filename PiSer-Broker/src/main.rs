@@ -18,7 +18,7 @@ fn main() -> std::io::Result<()> {
     // but at a later point we will need some supervision and possibly a dynamic pool of workers
     let _worker = spawn_link!(|message_queue| worker_process(message_queue));
 
-    let listener = TcpListener::bind("0.0.0.0:1884")?;
+    let listener = TcpListener::bind("0.0.0.0:1883")?;
     while let Ok((stream, _)) = listener.accept() {
         println!("New client connected: {:?}", stream.peer_addr());
         // spawn a new process for every new connection

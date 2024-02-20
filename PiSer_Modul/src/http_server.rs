@@ -1,8 +1,12 @@
 use futures::{SinkExt, StreamExt};
 use futures::stream::SplitSink;
 use tokio::sync::oneshot;
-use warp::{Filter, ws};
-use warp::ws::{Message, WebSocket};
+use warp::{
+    Filter,
+    ws,
+    Reply,
+    ws::{Message, WebSocket},
+};
 use serde_json;
 use serde::de::DeserializeOwned;
 use std::fs::File;
@@ -83,6 +87,8 @@ async fn handle_client(web_socket: WebSocket){
     println!("WebSocket verbindung unterbrochen");
 }
 
+
+/*
 fn get_mime_type(file_path: &str) -> &str {
     match Path::new(file_path).extension().and_then(|ext| ext.to_str()) {
         Some("html") => "text/html;charset=utf-8",
@@ -91,8 +97,20 @@ fn get_mime_type(file_path: &str) -> &str {
         _ => "application/octet-stream;charset=utf-8",
     }
 }
+*/
+
 
 pub async fn http_server_setup(shut_channel_rx: oneshot::Receiver<()>) ->Result<(), &'static str> {
+    //Pfad: vom FrWeb-UI (HTML dateien etc...)
+    let backüath=std::path::Path::new("../");
+    let curr_dir=std::env::current_dir().expect("failed to read current directory");
+    let project_folder=curr_dir.join(backüath).join("FrWeb-UI");
+
+    if !project_folder.is_dir(){
+        panic!("[html-server] Falsche Pfadangabe!"); //falls ich was beim Pfad verkackt habe, wird beendet
+    }
+
+    //websocket route
     let ws_route = warp::path("websocket")
         .and(warp::ws())
         .map(|ws: ws::Ws|{
@@ -103,36 +121,35 @@ pub async fn http_server_setup(shut_channel_rx: oneshot::Receiver<()>) ->Result<
             }
             )});
 
-    let curr_dir = std::env::current_dir().expect("failed to read current directory");
-
-
-    let backüath=std::path::Path::new("../");
-    let curr_dir=std::env::current_dir().expect("failed to read current directory");
-    let project_folder=curr_dir.join(backüath).join("FrWeb-UI");
-
-    if !project_folder.is_dir(){
-        panic!("kein pfad...");
-    }
-
-
-
-    let routes = warp::get()
-        .and(warp::fs::dir(project_folder))
-        .map(move |reply:warp::reply::Response| {
-            let mime_type = get_mime_type(reply.path().to_str().unwrap_or(""));
-            warp::reply::with_header(reply, "Content-Type", mime_type)
+    //Routen für Website mit MIME-Typ
+    let all_in_one_routes = warp::get()
+        .and(warp::fs::dir(project_folder.clone()))
+        .map(|reply: warp::filters::fs::File| {
+            //println!("replyed path: {:?}",reply.path());
+            if reply.path().ends_with("device_classes.js") {
+                warp::reply::with_header(reply, "content-type", "text/javascript").into_response()
+            }else if reply.path().ends_with("script.js") {
+                warp::reply::with_header(reply, "content-type", "application/javascript").into_response()
+            }else if reply.path().ends_with("style.css") {
+                warp::reply::with_header(reply, "content-type", "text/css").into_response()
+            }else {
+                reply.into_response()
+            }
         });
 
-/*
-
-    let html_content = fs::read_to_string(project_folder.join("index.html"))
-        .expect("Fehler beim Lesen der HTML-Datei");
+        let alternative_route = warp::get()
+            .and(warp::fs::dir(project_folder.clone()))
+            .map(|reply: warp::filters::fs::File|{
+                println!("du bist doof!");
+                println!("Pfad noch nicht geroutet: {:?}",reply.path());
+                reply.into_response()
+            });
 
     let routes=warp::get()
         .and(ws_route
-            .or(warp::fs::dir(project_folder)));
+            .or(all_in_one_routes));
 
-*/
+
 
     //Certificate: openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.rsa -out cert.pem
     let (_,server)=warp::serve(routes)

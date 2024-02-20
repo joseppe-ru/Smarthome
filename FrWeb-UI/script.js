@@ -1,45 +1,49 @@
-import {Schalter} from "/FrWeb-UI/device_classes.js";
-//import * as Paho from "/paho_mqtt_lib/paho-mqtt.js"
-//import * as Paho from "/paho_mqtt_lib/paho-mqtt-min.js"
-
+//Endpunkt (Adresse) vom WebSocket (HTTPS-Server)
 const BACKEND_URL_WS ="wss://"+ window.location.hostname+":9231/" //Basis-Pfad für den Server
+//import in HTML -> Paho ist als 'const' deklariert und deshalb erreichbar
+const client=new Paho.MQTT.Client('10.58.104.206',1883,'/',"FrWeb-UI");
+//Initialisiert den Websocket
+const socket = new WebSocket(BACKEND_URL_WS+"websocket")
+//Die Geräteklassen (wie 'Schalter') sind ebenfalls als 'const' definiert und aus device_classes.js in HTML importiert
 
-const client=new Paho.MQTT.Client('127.0.0.1',1884,'/',"FrWeb-UI");
-
-client.connect({
+const options = {
+    useSSL: true,
+    //timeout: 3,
     onSuccess: onConnect,
     onFailure: onFailure,
-});
+    //cleanSession : true,
+    //keepAliveInterval:60,
+    // Authentifizierung
+    //userName: "client072", // Benutzername
+    //password: "", // Passwort
+};
 
-client.onMessageArrived=function handle_mqtt_message(e) {
+//Callbacks für MQTT:
+client.connect(options);
+client.onMessageArrived=function handle_mqtt_message(e) {console.log(e._getPayloadString())}
+function onConnect() {console.log('Connected to MQTT broker')}
+function onFailure(errorMessage) {console.error('Failed to connect to MQTT broker:', errorMessage);}
 
-    console.log(e._getPayloadString())
-}
-
-function onConnect() {
-    console.log('Connected to MQTT broker');
-    client.subscribe('test', { qos: 1 });
-}
-
-function onFailure(errorMessage) {
-    console.error('Failed to connect to MQTT broker:', errorMessage);
-}
-
-//öffnet den initialisierungs Websocket
-const socket = new WebSocket(BACKEND_URL_WS+"websocket")
-//Webscoket Callbacks/Events hinzufügen
-socket.onopen=()=>{console.log("init_Websocket opened");socket.send("connected client")}
+//Websocket Callbacks:
+socket.onopen=()=>{console.log("Websocket opened");socket.send("client connected: "+window.location.hostname)}
 socket.onmessage=(msg)=>handle_server_message(msg)
-socket.onerror=(err)=>console.error("init_Websocket: err: ",err)
-socket.onclose=()=> {
-    console.log("Websocket closed");
-    window.location.reload();
-}
+socket.onerror=(err)=>console.error("Websocket: err: ",err)
+socket.onclose=()=> {console.log("Websocket closed");window.location.reload();}
 
 //Dieses Array beinhaltet alle Geräte, die eingerichtet worden (also die Objekte der Klassen)
 const all_devices = [];
 
-//Dem Event ein Gerät zuordnen
+function isjson(str){
+    try{
+        JSON.parse(str.data)
+        return true
+    }
+    catch (e){
+        return false
+    }
+}
+
+//Welches Gerät hat das Event getriggert?
 function handle_events(e){
     for (let i=0;i<all_devices.length;i++){
         if (all_devices[i].ID == e.currentTarget.id){
@@ -49,51 +53,49 @@ function handle_events(e){
 }
 
 function handle_server_message(msg){
-    let json = JSON.parse(msg.data) //string als Json-Objekt speichern
-    for (let device in json.device_list){ //Alle angegebenen Geräte erstellen
-        if(json.device_list.hasOwnProperty(device)){
-            const dev = json.device_list[device]
-            create_device(dev)
+    if (isjson(msg)){
+        let json = JSON.parse(msg.data) //string als Json-Objekt speichern
+        for (let device in json.device_list){ //Alle angegebenen Geräte heraussuchen
+            if(json.device_list.hasOwnProperty(device)){
+                const dev = json.device_list[device]
+                create_device(dev)
+            }
         }
+        console.log(all_devices)
     }
-    console.log(all_devices)
+    else {
+        console.log(msg)
+    }
 }
 
 function create_device(dev){
-    let position
 
-    //Positionsbestimmung
+    let position
+    //Positionsbestimmung (Aufteilung nach id, 32 Geräte pro Raum)
     if (dev.dev_id < 32){
-        console.log("Gerät für Schlafzimmer einrichten: ",dev, " vom Typ: ",dev.type)
         position = document.getElementById("Schlafzimmer")
-    }
-    else if(dev.dev_id < 64){
-        console.log("Gerät für Wohnzimmer einrichten: ",dev)
+    }else if(dev.dev_id < 64){
         position=document.getElementById("Wohnzimmer")
-    }
-    else if(dev.dev_id < 96){
-        console.log("Gerät für Küche einrichten: ",dev)
+    }else if(dev.dev_id < 96){
         position=document.getElementById("Küche")
-    }
-    else{
-        console.log("Gerät für Arbeitszimmer einrichten: ",dev)
+    }else{
         position=document.getElementById("Arbeitszimmer")
     }
 
-    //Sortieren nach Typ
+    //Geräte erstellen nach Typ
     switch (dev.type){
         case "Schalter":{
-            //neues Gerät erstellen, Frontend elemente hinzufügen...
-            let _switch=new Schalter(dev)
-            let dom_obj=_switch.build_frontend(position)
-
-            //das HTML-Element einer Position zuordnen und erstellen (zu HTML Body hinzufügen)
-            position.appendChild(dom_obj)
-
-            dom_obj.addEventListener('click',handle_events)
-            //Das Gerät einer internen Geräteliste anfügen
-            all_devices.push(_switch)
-
+            let _switch=new Device_Classes.Schalter(dev) //Geräteklasse instanziieren
+            let dom_obj=_switch.build_frontend(position) //HTML-Objekt (Gerätespezifisch) erzeugen
+            position.appendChild(dom_obj) //Element zu Tap (Raum) hinzufügen
+            dom_obj.addEventListener('click',handle_events) //Event + Handler fkt einrichten
+            all_devices.push(_switch) // Geräteobjekt der Geräteliste anhängen
+            break
         }
+        default:{
+            console.log("Gerätetyp noch nicht eingerichtet...")
+            break
+        }
+
     }
 }
