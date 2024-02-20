@@ -7,9 +7,10 @@ use lunatic::{ap::ProcessRef, net::TcpStream, spawn_link, AbstractProcess};
 use mqtt_packet_3_5::{ConnackPacket, ConnectPacket, MqttPacket, PacketDecoder};
 use serde::{Deserialize, Serialize};
 use std::io::Read;
-
 pub mod tcp_stream_reader;
 pub mod tcp_stream_writer;
+
+use std::io::Write;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 // this struct will store some relevant client data
@@ -64,6 +65,16 @@ impl Client {
     // because there's not much we can do if the client ddelivered an
     // invalid packet
     fn read_connect_packet(mut stream: TcpStream) -> ConnectPacket {
+
+        //TCP Stream in Bytes
+        let mut buf = [0;1024];
+        stream.read(&mut buf).expect("failed to read stream");
+
+        println!("Stream Data: {:?}",buf);
+
+        stream.write_all(&buf).expect("failed to write buffer back");
+        //was davon ist websocket und was ist mqtt?
+        //die bytes der mqtt message an decoder übergeben
 
         let mut packet_decoder = PacketDecoder::from_stream(stream);
 

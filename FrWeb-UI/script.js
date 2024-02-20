@@ -1,7 +1,7 @@
 //Endpunkt (Adresse) vom WebSocket (HTTPS-Server)
 const BACKEND_URL_WS ="wss://"+ window.location.hostname+":9231/" //Basis-Pfad für den Server
 //import in HTML -> Paho ist als 'const' deklariert und deshalb erreichbar
-const client=new Paho.MQTT.Client('10.58.104.206',1883,'/',"FrWeb-UI");
+const client=new Paho.MQTT.Client('10.58.104.206',1884,'/',"FrWeb-UI");
 //Initialisiert den Websocket
 const socket = new WebSocket(BACKEND_URL_WS+"websocket")
 //Die Geräteklassen (wie 'Schalter') sind ebenfalls als 'const' definiert und aus device_classes.js in HTML importiert
