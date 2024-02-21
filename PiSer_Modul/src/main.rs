@@ -44,7 +44,7 @@ async fn main() {
 
         let http_server = tokio::spawn(http_server::http_server_setup(shut_channel_receiver));
         let input = tokio::spawn(input_control::system_input(shut_channel_sender));
-        let broker=tokio::spawn(mqtt_broker::host_mqtt_broker());
+        let broker = tokio::spawn(mqtt_broker::host_mqtt_broker());
         let processing_res = tokio::try_join!(
             flatten(http_server),
             flatten(input),

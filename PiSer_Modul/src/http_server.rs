@@ -61,7 +61,6 @@ async fn handle_websocket_message(message:Message, _tx: &mut SplitSink<WebSocket
     }else {
         eprintln!("Websocket daten in unbekanntem Format!")
     }
-
 }
 
 async fn handle_client(web_socket: WebSocket){
@@ -153,9 +152,9 @@ pub async fn http_server_setup(shut_channel_rx: oneshot::Receiver<()>) ->Result<
 
     //Certificate: openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.rsa -out cert.pem
     let (_,server)=warp::serve(routes)
-        .tls()
-        .cert_path("cert.pem")
-        .key_path("key.rsa")
+        //.tls()
+        //.cert_path("cert.pem")
+        //.key_path("key.rsa")
         .bind_with_graceful_shutdown(([0,0,0,0],9231),async { shut_channel_rx.await.ok(); });
 
     // Spawn the server into a runtime

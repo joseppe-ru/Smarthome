@@ -11,6 +11,7 @@ pub mod tcp_stream_reader;
 pub mod tcp_stream_writer;
 
 use std::io::Write;
+use std::fmt::UpperHex;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 // this struct will store some relevant client data
@@ -67,10 +68,11 @@ impl Client {
     fn read_connect_packet(mut stream: TcpStream) -> ConnectPacket {
 
         //TCP Stream in Bytes
-        let mut buf = [0;1024];
+        let mut buf:[u8;1024] = [0;1024];
         stream.read(&mut buf).expect("failed to read stream");
 
-        println!("Stream Data: {:?}",buf);
+        println!("Stream_data: {:X?}",buf);
+        println!("[End of Stream]");
 
         stream.write_all(&buf).expect("failed to write buffer back");
         //was davon ist websocket und was ist mqtt?

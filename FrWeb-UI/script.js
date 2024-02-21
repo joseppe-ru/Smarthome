@@ -1,28 +1,41 @@
 //Endpunkt (Adresse) vom WebSocket (HTTPS-Server)
-const BACKEND_URL_WS ="wss://"+ window.location.hostname+":9231/" //Basis-Pfad für den Server
+const BACKEND_URL_WS ="ws://"+ window.location.hostname+":9231/" //Basis-Pfad für den Server
 //import in HTML -> Paho ist als 'const' deklariert und deshalb erreichbar
-const client=new Paho.MQTT.Client('10.58.104.206',1884,'/',"FrWeb-UI");
+const client=new Paho.MQTT.Client('10.58.104.206',8808,'/',"FrWeb-UI");
 //Initialisiert den Websocket
 const socket = new WebSocket(BACKEND_URL_WS+"websocket")
 //Die Geräteklassen (wie 'Schalter') sind ebenfalls als 'const' definiert und aus device_classes.js in HTML importiert
 
 const options = {
-    useSSL: true,
-    //timeout: 3,
+    useSSL: false,
+    timeout: 3,
     onSuccess: onConnect,
     onFailure: onFailure,
     //cleanSession : true,
-    //keepAliveInterval:60,
+    keepAliveInterval:60,
     // Authentifizierung
     //userName: "client072", // Benutzername
     //password: "", // Passwort
 };
 
+const sub_options={
+    qos:1,
+    invocationContext:"d",
+    onFailure:fail,
+    onSuccess:succ,
+    timeout:3
+}
+
 //Callbacks für MQTT:
 client.connect(options);
 client.onMessageArrived=function handle_mqtt_message(e) {console.log(e._getPayloadString())}
-function onConnect() {console.log('Connected to MQTT broker')}
+
+function fail(){console.log("failed to sub")}
+function succ(){console.log("sub has worked")}
+function onConnect() {console.log('Connected to MQTT broker');client.subscribe('test')}
 function onFailure(errorMessage) {console.error('Failed to connect to MQTT broker:', errorMessage);}
+
+
 
 //Websocket Callbacks:
 socket.onopen=()=>{console.log("Websocket opened");socket.send("client connected: "+window.location.hostname)}
