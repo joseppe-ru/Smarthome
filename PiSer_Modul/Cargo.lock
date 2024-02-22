@@ -573,6 +573,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "mqtt_packet_3_5"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "37f144b8299075716a07c676553dbff090c4af9d99d6e92f5c4f4992acb0393d"
+
+[[package]]
 name = "multer"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -656,6 +662,7 @@ dependencies = [
  "futures 0.3.30",
  "local-ip",
  "local-ip-address",
+ "mqtt_packet_3_5",
  "rustc-serialize",
  "serde",
  "serde_json",

@@ -1,5 +1,4 @@
 use std::collections::{HashMap, VecDeque};
-
 use lunatic::{abstract_process, ap::Config, ProcessName, Tag};
 use mqtt_packet_3_5::{MqttPacket, PublishPacket, SubackPacket, SubscribePacket};
 use serde::{Deserialize, Serialize};

@@ -1,6 +1,6 @@
 mod input_control;
 mod http_server;
-mod mqtt_broker;
+mod broker;
 
 use std::io::{stdout, BufWriter};
 use warp::Filter;
@@ -44,7 +44,7 @@ async fn main() {
 
         let http_server = tokio::spawn(http_server::http_server_setup(shut_channel_receiver));
         let input = tokio::spawn(input_control::system_input(shut_channel_sender));
-        let broker = tokio::spawn(mqtt_broker::host_mqtt_broker());
+        let broker = tokio::spawn(broker::broker_setup());
         let processing_res = tokio::try_join!(
             flatten(http_server),
             flatten(input),

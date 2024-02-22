@@ -115,10 +115,8 @@ pub async fn http_server_setup(shut_channel_rx: oneshot::Receiver<()>) ->Result<
         .map(|ws: ws::Ws|{
             println!("Connection was upgraded to websocket.");
             ws.on_upgrade(move |websocket| async move {
-
                 handle_client(websocket).await;
-            }
-            )});
+            })});
 
     //Routen für Website mit MIME-Typ
     let all_in_one_routes = warp::get()
