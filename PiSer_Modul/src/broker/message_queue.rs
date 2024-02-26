@@ -21,7 +21,7 @@ pub struct MessageQueue{
 }
 
 impl MessageQueue{
-    fn init()->Result<Self,()>{Ok(Self::default())}
+    pub fn start()->Result<Self,()>{Ok(Self::default())}
 
     fn terminate(self) {
         println!("Shutdown process");
@@ -34,7 +34,7 @@ impl MessageQueue{
     fn subscribe(&mut self, packet: SubscribePacket, sender: Client) -> bool {false}
     fn publish(&mut self, packet: PublishPacket, sender: Client) -> bool {false}
 
-    fn get_next_job(&mut self) -> Option<WorkerJob> {
+    pub fn get_next_job(&mut self) -> Option<WorkerJob> {
         self.jobs.pop_front()
     }
 
