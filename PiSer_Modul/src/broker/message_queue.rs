@@ -20,7 +20,7 @@ pub struct WorkerJob {
 pub struct MessageQueue{
     topic_subscription:HashMap<String,Vec<Client>>,
     jobs:VecDeque<WorkerJob>,
-    job_counter:u32,
+    pub job_counter:u32,
 }
 
 impl MessageQueue{
@@ -30,14 +30,22 @@ impl MessageQueue{
 
     //fn handle_link_death(&self) {println!("Link trapped");}
 
-    pub fn add_job(&mut self, job:WorkerJob){self.jobs.push_back(job)}
+    pub fn add_job(&mut self, job:WorkerJob){
+        self.job_counter += 1;
+        self.jobs.push_back(job);
+    }
 
     fn subscribe(&mut self, packet: SubscribePacket, sender: Client) -> bool {false}
     fn publish(&mut self, packet: PublishPacket, sender: Client) -> bool {false}
 
 
-    pub fn get_next_job(&mut self) -> Option<WorkerJob> {
-        self.jobs.pop_front()
+    pub async fn get_next_job(&mut self) -> Option<WorkerJob> {
+        //self.jobs.pop_front();
+        match self.jobs.pop_front() {
+            Some(job)=>{self.job_counter-=1; Some(job)},
+            None=>None
+        }
+
     }
 
     fn get_job_id(&mut self) -> u32 {1}

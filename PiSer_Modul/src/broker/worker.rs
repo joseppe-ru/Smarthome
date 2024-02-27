@@ -1,5 +1,5 @@
 use mqtt_packet_3_5::MqttPacket;
-use tokio::time::{sleep, Duration};
+use tokio::{time::{sleep, Duration}};
 use crate::broker::message_queue;
 
 //TODO:
@@ -8,10 +8,11 @@ use crate::broker::message_queue;
 // Queue von niemanden befüllt werden kann
 pub async fn worker_process(mut mq:message_queue::MQ){
     loop{
+        println!("[consumer] Zugriff auf Queue");
         let mut mq = mq.lock().await;
-        match mq.get_next_job() {
-            Some(job) => {
-                println!("Element in Queue gefunden: {:?}",job);
+
+        match mq.get_next_job().await {
+            Some(_job) => {
                 /*
                 match job.packet{
                     publish @ MqttPacket::Publish(_)=>{
@@ -25,8 +26,8 @@ pub async fn worker_process(mut mq:message_queue::MQ){
             }
 
             None => {
-                println!("Queue ist leer...");
-                sleep(Duration::from_millis(1000)).await; }
+                drop(mq);  //Mutex fallen lassen:
+                sleep(Duration::from_millis(100)).await; }
         }
     }
 }
