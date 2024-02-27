@@ -23,7 +23,7 @@ pub struct Client {
     pub(crate) writer: ProcessRef<TcpStreamWriter>,
 }
 
-impl Client {
+impl Client { 
     // note that both the reader and writer are linked, which means that if either
     // of the processes dies, all three will die. We will handle session disconnects
     // as well as "sticky" sessions in a future article
