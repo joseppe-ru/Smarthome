@@ -1,3 +1,8 @@
+use std::sync::{Arc};
+use std::time::Duration;
+use mqtt_packet_3_5::{MqttPacket,PublishPacket};
+use tokio::{sync::Mutex,time::sleep};
+
 mod client;
 mod message_queue;
 mod worker;
@@ -5,12 +10,26 @@ mod worker;
 pub async fn broker_setup()->Result<(),&'static str>{
     println!("Broker wird gestartet");
 
-    //message queue starten
-    let m_queue = message_queue::MessageQueue::start().unwrap();
-    //worker starten
-    let worker = tokio::spawn(worker::worker_process(m_queue));
-    //listener starten & Client_new_client rein binden
+    //message queue starten (mehr so ne referenz auf die Messagequeue)
+    let queue = Arc::new(Mutex::new(message_queue::MessageQueue::new()));
+    //worker starten (Consumer der Queue)
+    let queue_clone=Arc::clone(&queue);
+    let worker = tokio::spawn(async move { worker::worker_process(queue_clone).await });
+    //listener starten & Client_new_client rein binden (Producer für Queue)
+    let queue_clone=Arc::clone(&queue);
+    let producer = tokio::spawn(async move {prod(queue_clone).await });
+
 
     Ok(())
+}
+
+async fn prod(mut mq:message_queue::MQ){
+    loop{
+        let pub_pack=MqttPacket::Publish(PublishPacket{dup:true,qos:1,retain:true,topic:String::new(),message_id:None,payload:vec![1],properties:None}) ;
+        let jobber = message_queue::WorkerJob{job_id:12,packet:pub_pack,subscribers:vec![],sender:client::Client{}};
+        let mut mq= mq.lock().await;
+        mq.add_job(jobber);
+        sleep(Duration::from_millis(1000)).await;
+    }
 }
 

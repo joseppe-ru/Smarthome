@@ -1,9 +1,12 @@
 use std::collections::{HashMap, VecDeque};
+use std::sync::{Arc};
+use tokio::sync::Mutex;
 use mqtt_packet_3_5::{MqttPacket, PublishPacket, SubackPacket, SubscribePacket};
 use serde::{Deserialize, Serialize};
 
 use crate::broker::client::Client;
 
+pub type MQ = Arc<Mutex<MessageQueue>>;
 
 #[derive(Debug)]
 pub struct WorkerJob {
@@ -21,18 +24,17 @@ pub struct MessageQueue{
 }
 
 impl MessageQueue{
-    pub fn start()->Result<Self,()>{Ok(Self::default())}
+    pub fn new()->Self{Self::default()}
 
-    fn terminate(self) {
-        println!("Shutdown process");
-    }
+    //fn terminate(self) {println!("Shutdown process");}
 
-    fn handle_link_death(&self) {
-        println!("Link trapped");
-    }
+    //fn handle_link_death(&self) {println!("Link trapped");}
+
+    pub fn add_job(&mut self, job:WorkerJob){self.jobs.push_back(job)}
 
     fn subscribe(&mut self, packet: SubscribePacket, sender: Client) -> bool {false}
     fn publish(&mut self, packet: PublishPacket, sender: Client) -> bool {false}
+
 
     pub fn get_next_job(&mut self) -> Option<WorkerJob> {
         self.jobs.pop_front()
