@@ -3,12 +3,15 @@ mod http_server;
 mod broker;
 
 use std::io::{stdout, BufWriter};
+use std::net::IpAddr;
 use warp::Filter;
 use ferris_says::say;
 use futures::{SinkExt, StreamExt};
 use tokio::task::JoinHandle;
 use tokio::sync::oneshot;
 use local_ip_address::list_afinet_netifas;
+
+
 
 async fn flatten<T>(handle: JoinHandle<Result<T, &'static str>>) -> Result<T, &'static str> {
     match handle.await {
@@ -45,6 +48,7 @@ async fn main() {
         let http_server = tokio::spawn(http_server::http_server_setup(shut_channel_receiver));
         let input = tokio::spawn(input_control::system_input(shut_channel_sender));
         let broker = tokio::spawn(broker::broker_setup());
+
         let processing_res = tokio::try_join!(
             flatten(http_server),
             flatten(input),

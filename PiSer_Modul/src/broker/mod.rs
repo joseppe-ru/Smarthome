@@ -1,12 +1,11 @@
 use std::sync::{Arc};
-use std::time::Duration;
-use mqtt_packet_3_5::{MqttPacket,PublishPacket};
-use tokio::{sync::Mutex,time::sleep};
-use std::net::TcpListener;
+use tokio::{sync::Mutex,net::TcpListener};
+
 
 mod client;
 mod message_queue;
 mod worker;
+
 
 pub async fn broker_setup()->Result<(),&'static str>{
     println!("Broker wird gestartet");
@@ -17,19 +16,19 @@ pub async fn broker_setup()->Result<(),&'static str>{
     let queue_clone=Arc::clone(&queue);
     let worker = tokio::spawn(async move { worker::worker_process(queue_clone).await });
 
+    println!("Listener wird gestartet");
 
-    let listener = TcpListener::bind("0.0.0.0:1884")?;
-    while let Ok((stream,_)) = listener.accept(){
+    let listener = TcpListener::bind("0.0.0.0:1884").await.expect("failed to bind address");
+    while let Ok((stream,_)) = listener.accept().await{
         println!("Neuer MQTT_Client connected: {:?}",stream.peer_addr());
         let queue_clone=Arc::clone(&queue);
-        let client = tokio::spawn(async move {client::Client::start_new_client(stream,queue_clone).await});
+        tokio::spawn(async move {client::Client::start_new_client(stream,queue_clone).await});
     }
-
-    //TODO: tokio::join_handle
 
     Ok(())
 }
 
+/*
 async fn prod(mut mq:message_queue::MQ){
     loop{
         println!("[producer 1]");
@@ -42,3 +41,4 @@ async fn prod(mut mq:message_queue::MQ){
         sleep(Duration::from_millis(1900)).await;
     }
 }
+*/

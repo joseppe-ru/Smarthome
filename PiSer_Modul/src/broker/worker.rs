@@ -8,11 +8,12 @@ use crate::broker::message_queue;
 // Queue von niemanden befüllt werden kann
 pub async fn worker_process(mut mq:message_queue::MQ){
     loop{
-        println!("[consumer] Zugriff auf Queue");
+        //println!("[worker] Zugriff auf Queue");
         let mut mq = mq.lock().await;
 
         match mq.get_next_job().await {
             Some(_job) => {
+                println!("[worker] Element aus Queue: {:?}",_job);
                 /*
                 match job.packet{
                     publish @ MqttPacket::Publish(_)=>{
@@ -23,9 +24,11 @@ pub async fn worker_process(mut mq:message_queue::MQ){
                     }
                 }
                 */
+                drop(mq);  //Mutex fallen lassen:
             }
 
             None => {
+                //println!("[worker] Queue ist leer...");
                 drop(mq);  //Mutex fallen lassen:
                 sleep(Duration::from_millis(100)).await; }
         }
