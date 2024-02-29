@@ -10,7 +10,7 @@ use futures::{SinkExt, StreamExt};
 use tokio::task::JoinHandle;
 use tokio::sync::oneshot;
 use local_ip_address::list_afinet_netifas;
-
+use mqtt_packet_3_5::{ConnackPacket, ConnackProperties, MqttPacket, UserProperties};
 
 
 async fn flatten<T>(handle: JoinHandle<Result<T, &'static str>>) -> Result<T, &'static str> {

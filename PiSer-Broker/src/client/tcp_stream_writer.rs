@@ -47,7 +47,7 @@ impl TcpStreamWriter {
             "[writer {}] received packet to write {packet:?}",
             self.connect_packet.client_id
         );
-        let encoded_packet = packet
+        let encoded_packet: Vec<u8> = packet
             .encode(self.connect_packet.protocol_version)
             .expect("should encode packet");
         match self.tcp_stream.write_all(&encoded_packet) {

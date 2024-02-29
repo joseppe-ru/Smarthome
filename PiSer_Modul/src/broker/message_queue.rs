@@ -35,7 +35,35 @@ impl MessageQueue{
         self.jobs.push_back(job);
     }
 
-    fn subscribe(&mut self, packet: SubscribePacket, sender: Client) -> bool {false}
+    pub fn subscribe(&mut self, packet: SubscribePacket, sender: Arc<Mutex<Client>>) -> bool {
+        let mut granted = vec![];
+        // add the client reference to each topic
+        for subscription in packet.subscriptions.into_iter() {
+            let subscribers = self
+                .topic_subscriptions
+                .entry(subscription.topic)
+                .or_default();
+            subscribers.push(sender.clone());
+
+            // we will need to send a SUBACK to the subscriber
+            // in which we will let the subscriber know which QoS level
+            // was granted for each topic
+            // NOTE: for now we will send QoS level 0 because that's the only
+            // level the MQTT broker supports for now
+            granted.push(mqtt_packet_3_5::Granted::QoS0);
+        }
+
+        // create a new job for sending the SUBACK
+        let job_id = self.get_job_id();
+        self.jobs.push_back(WorkerJob {
+            job_id,
+            // use helper method for creating a basic MQTTv3 SUBACK packet
+            packet: MqttPacket::Suback(SubackPacket::new_v3(packet.message_id, granted)),
+            subscribers: vec![],
+            sender,
+        });
+        true // let the Client know we registered him
+    }
     fn publish(&mut self, packet: PublishPacket, sender: Client) -> bool {false}
 
 
