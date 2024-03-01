@@ -3,7 +3,7 @@ mod http_server;
 mod broker;
 
 use std::io::{stdout, BufWriter};
-use std::net::IpAddr;
+use std::time::Duration;
 use warp::Filter;
 use ferris_says::say;
 use futures::{SinkExt, StreamExt};
@@ -11,6 +11,7 @@ use tokio::task::JoinHandle;
 use tokio::sync::oneshot;
 use local_ip_address::list_afinet_netifas;
 use mqtt_packet_3_5::{ConnackPacket, ConnackProperties, MqttPacket, UserProperties};
+use tokio::time::sleep;
 
 
 async fn flatten<T>(handle: JoinHandle<Result<T, &'static str>>) -> Result<T, &'static str> {
@@ -46,8 +47,12 @@ async fn main() {
         let (shut_channel_sender, shut_channel_receiver) = oneshot::channel::<()>();
 
         let http_server = tokio::spawn(http_server::http_server_setup(shut_channel_receiver));
+        //let http_server = tokio::spawn(pace_holder("http_server"));
         let input = tokio::spawn(input_control::system_input(shut_channel_sender));
+        //let input = tokio::spawn(pace_holder("input"));
         let broker = tokio::spawn(broker::broker_setup());
+        //let broker = tokio::spawn(pace_holder("broker"));
+
 
         let processing_res = tokio::try_join!(
             flatten(http_server),
@@ -65,5 +70,13 @@ async fn main() {
                 return;
             }
         }
+
+    }
+}
+
+async fn pace_holder(_name:&str)->Result<(), &'static str>{
+    loop {
+        println!("[main    ] Modul {_name} nicht aktiv!");
+        sleep(Duration::from_millis(10000)).await;
     }
 }

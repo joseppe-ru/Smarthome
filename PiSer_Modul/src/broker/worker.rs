@@ -1,3 +1,4 @@
+
 use mqtt_packet_3_5::MqttPacket;
 use tokio::{time::{sleep, Duration}};
 use crate::broker::message_queue;
@@ -12,18 +13,23 @@ pub async fn worker_process(mut mq:message_queue::MQ){
         let mut mq = mq.lock().await;
 
         match mq.get_next_job().await {
-            Some(_job) => {
-                println!("[worker] Element aus Queue: {:?}",_job);
-                /*
+            Some(job) => {
+                println!("[worker] Element aus Queue: {:?}",job);
                 match job.packet{
                     publish @ MqttPacket::Publish(_)=>{
                         for subscriber in job.subscribers.into_iter(){
                             //subscriber.writer.write_packet(publish.clone());
-                            println!("Publishing to all subscribers!! {:?},{:?}",subscriber,publish)
+                            println!("Publishing to all subscribers!! {:?},{:?}",subscriber,publish);
+                            let mut client = subscriber.lock().await;
+                            client.write(publish.clone()).await;
                         }
                     }
+                    suback @ MqttPacket::Suback(_)=>{
+                        let mut client = job.client.lock().await;
+                        client.write(suback).await;
+                    }
+                    nüscht => eprintln!("[worker  ] kein worker-job für packet: {:?}",nüscht)
                 }
-                */
                 drop(mq);  //Mutex fallen lassen:
             }
 
