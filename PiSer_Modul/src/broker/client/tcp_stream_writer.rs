@@ -1,6 +1,8 @@
 use std::io::Write;
 use std::net::TcpStream;
+use std::sync::Arc;
 use mqtt_packet_3_5::{ ConnectPacket, MqttPacket,};
+use tokio::sync::Mutex;
 
 #[derive(Debug)]
 pub struct TcpWriter {
@@ -10,7 +12,8 @@ pub struct TcpWriter {
 impl TcpWriter {
 
     pub fn new(id:String)->Self{Self{cli_id:id}}
-    pub fn write_stream(&mut self,mut std_stream:std::net::TcpStream,connect_packet: ConnectPacket, packet:MqttPacket)->bool{
+    pub async fn write_stream(&mut self,mut std_stream:Arc<Mutex<std::net::TcpStream>>,connect_packet: ConnectPacket, packet:MqttPacket)->bool{
+        let mut std_stream = std_stream.lock().await;
         println!("[writer: {:?}] received packet to write: {:?}",connect_packet.client_id,packet);
 
         let encoded_packet = packet.encode(connect_packet.protocol_version).expect("[writer] failed to encode ConAck");
@@ -21,8 +24,9 @@ impl TcpWriter {
         }
     }
 
-    pub async fn handle_connect(&mut self,connect_packet: ConnectPacket, mut tcp_stream: TcpStream) ->bool{
+    pub async fn handle_connect(&mut self,connect_packet: ConnectPacket, mut tcp_stream: Arc<Mutex<std::net::TcpStream>>) ->bool{
         //let mut client = client.lock().await;
+        let mut tcp_stream = tcp_stream.lock().await;
         let mqtt_version=connect_packet.protocol_version;
         println!("[writer  ] client id: {:?}, protokoll: {:?}",
                  connect_packet.client_id,
