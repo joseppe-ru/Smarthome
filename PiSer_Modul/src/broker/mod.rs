@@ -25,20 +25,22 @@ pub async fn broker_setup()->Result<(),&'static str>{
     println!("[broker] Listener wird gestartet");
 
     let listener = TcpListener::bind("0.0.0.0:1885").await.expect("failed to bind address");
-    /*
+    
     while let Ok((stream,_)) = listener.accept().await{
         println!("[broker  ] Neuer MQTT_Client connected: {:?}",stream.peer_addr());
         let queue_clone=Arc::clone(&queue);
         tokio::spawn(handle_connect(stream,queue_clone));
     }
-     */
+     
+       /*
     loop{
         let (stream,_)=listener.accept().await.unwrap();
         println!("[broker  ] Neuer MQTT_Client connected: {:?}",stream.peer_addr());
         let queue_clone=Arc::clone(&queue);
         tokio::spawn(async move { handle_connect(stream, queue_clone).await});
     }
-
+        */
+        
     //return tokio::spawn(async move {pace_holder("broker").await});
     Ok(())
 }
