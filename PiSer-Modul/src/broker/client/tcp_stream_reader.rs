@@ -1,10 +1,8 @@
 use std::io::Read;
 use std::net::TcpStream;
 use std::sync::Arc;
-use std::time::Duration;
 use mqtt_packet_3_5::{ConnectPacket, MqttPacket, PacketDecoder};
 use tokio::sync::Mutex;
-use tokio::time::sleep;
 use crate::broker::client::Client;
 use crate::broker::message_queue::MQ;
 
@@ -21,22 +19,20 @@ impl TcpReader {
     pub async fn get_connect_packet(tcp_stream:Arc<Mutex<std::net::TcpStream>>)->Result<ConnectPacket,&'static str>{
         let tcp_stream = tcp_stream.lock().await;
         println!("[reader  ]analysieren des Connect-Paketes");
-        let mut packet_decoder:PacketDecoder<std::net::TcpStream> = PacketDecoder::from_stream(tcp_stream.try_clone().unwrap());
+        let mut packet_decoder:PacketDecoder<std::net::TcpStream> = PacketDecoder::from_stream(tcp_stream.into());
 
-
-            match packet_decoder.decode_packet(3) {
-                Ok(MqttPacket::Connect(connect)) => {
-                    println!("[reader  ] Connect Packet gefunden (id {:?}, protokoll_v: {:?}, name: {:?})", connect.client_id.clone(), connect.protocol_version.clone(), connect.user_name.clone());
-                    return Ok(connect)
-                },
-                Ok(_packet) => {
-                    panic!("[reader  ] Client sent incorrect packet as initial packet {_packet:?}");
-                },
-                Err(e) => {
-                    panic!("[reader  ] Malformed packet received from client! Error details: {e}");
-                },
-            }
-
+        match packet_decoder.decode_packet(3){
+            Ok(MqttPacket::Connect(connect)) => {
+                println!("[reader  ] Connect Packet gefunden (id {:?}, protokoll_v: {:?}, name: {:?})",connect.client_id.clone(),connect.protocol_version.clone(),connect.user_name.clone());
+                return Ok(connect)
+            },
+            Ok(packet) => {
+                panic!("[reader  ] Client sent incorrect packet as initial packet {packet:?}");
+            },
+            Err(e) => {
+                panic!("[reader  ] Malformed packet received from client! Error details: {e}");
+            },
+        }
     }
 
     pub async fn handle_connect(&mut self){
@@ -46,19 +42,17 @@ impl TcpReader {
 
     pub async fn message_handler(&mut self){
         let client_lock = self.client.lock().await;
-
+        //println!("[reader {:?}] Read tcp stream... {:?}", client_lock.connect_packet.client_id,client_lock.tcp_stream.try_clone().unwrap());
         //show_stream(client_lock.tcp_stream.try_clone().expect("[reader  ] failed to clone stream"));
-        //let mqtt_version=client_lock.connect_packet.protocol_version;
+        let mqtt_version=client_lock.connect_packet.protocol_version;
 
         let tcp_stream=client_lock.tcp_stream.lock().await;
+        let mut packet_decoder=PacketDecoder::from_stream(tcp_stream.into());
+        drop(client_lock);//client Mutex dropped here
 
-        println!("[reader {:?}] Read tcp stream... {:?}", client_lock.connect_packet.client_id,tcp_stream.try_clone().unwrap());
-        let mut packet_decoder=PacketDecoder::from_stream(tcp_stream.try_clone().unwrap());
-        //drop(client_lock);//client Mutex dropped here
-        sleep(Duration::from_millis(10)).await;
         while packet_decoder.has_more(){
             println!("[reader  ] has_more");
-            match packet_decoder.decode_packet(3){
+            match packet_decoder.decode_packet(mqtt_version){
                 Ok(packet)=> match packet {
                     MqttPacket::Connect(_)=>{
                         println!("[reader  ] (Connect) nicht schon wieder");

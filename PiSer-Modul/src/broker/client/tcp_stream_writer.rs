@@ -14,7 +14,7 @@ impl TcpWriter {
     pub fn new(id:String)->Self{Self{cli_id:id}}
     pub async fn write_stream(&mut self,mut std_stream:Arc<Mutex<std::net::TcpStream>>,connect_packet: ConnectPacket, packet:MqttPacket)->bool{
         let mut std_stream = std_stream.lock().await;
-        println!("[writer: {:?}] received packet to write",connect_packet.client_id);
+        println!("[writer: {:?}] received packet to write: {:?}",connect_packet.client_id,packet);
 
         let encoded_packet = packet.encode(connect_packet.protocol_version).expect("[writer] failed to encode ConAck");
 
@@ -55,11 +55,8 @@ impl TcpWriter {
        // let encoded_packet=connack.encode(5).expect("[conn-ack] encoding failed");
         match tcp_stream.write_all(&encoded_packet){
             Ok(_)=>true,
-            Err(e)=>{eprintln!("[writer  ] failed to write (e: {:?}",e); return false;}
-        };
-
-        println!("[writer  ] wrote ack ṕaket to stream");
-        true
+            Err(e)=>{eprintln!("[writer  ] failed to write (e: {:?}",e); false}
+        }
     }
 
     //tcp_stream_reader

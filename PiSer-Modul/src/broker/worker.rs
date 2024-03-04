@@ -14,7 +14,7 @@ pub async fn worker_process(mut mq:message_queue::MQ){
 
         match mq.get_next_job().await {
             Some(job) => {
-                println!("[worker] neuer Job gefunden: {:?}",job.job_id);
+                println!("[worker] Element aus Queue: {:?}",job);
                 match job.packet{
                     publish @ MqttPacket::Publish(_)=>{
                         for subscriber in job.subscribers.into_iter(){
