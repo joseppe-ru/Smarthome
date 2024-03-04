@@ -1,0 +1,66 @@
+Eventuell reicht es ja auch einfach nur, die Datei einzulesen und weiter zu geben
+
+let file = fs::File::open("text.json")
+    .expect("file should open read only");
+let json: serde_json::Value = serde_json::from_reader(file)
+    .expect("file should be proper JSON");
+let first_name = json.get("FirstName")
+    .expect("file should have FirstName key");
+
+https://stackoverflow.com/questions/30292752/how-do-i-parse-a-json-file
+
+Serde is the preferred JSON serialization provider. You can read the JSON text from a file a number of ways. Once you have it as a string, use serde_json::from_str:
+
+fn main() {
+    let the_file = r#"{
+        "FirstName": "John",
+        "LastName": "Doe",
+        "Age": 43,
+        "Address": {
+            "Street": "Downing Street 10",
+            "City": "London",
+            "Country": "Great Britain"
+        },
+        "PhoneNumbers": [
+            "+44 1234567",
+            "+44 2345678"
+        ]
+    }"#;
+
+    let json: serde_json::Value =
+        serde_json::from_str(the_file).expect("JSON was not well-formatted");
+}
+Cargo.toml:
+
+[dependencies]
+serde = { version = "1.0.104", features = ["derive"] }
+serde_json = "1.0.48"
+
+
+
+use serde::Deserialize;
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+struct Person {
+    first_name: String,
+    last_name: String,
+    age: u8,
+    address: Address,
+    phone_numbers: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+struct Address {
+    street: String,
+    city: String,
+    country: String,
+}
+
+fn main() {
+    let the_file = /* ... */;
+
+    let person: Person = serde_json::from_str(the_file).expect("JSON was not well-formatted");
+    println!("{:?}", person)
+}
