@@ -6,8 +6,6 @@ use rand::Rng;
 
 use crate::broker::client::Client;
 
-pub type MQ = Arc<Mutex<MessageQueue>>;
-
 #[derive(Debug)]
 pub struct WorkerJob {
     pub job_id: u32,

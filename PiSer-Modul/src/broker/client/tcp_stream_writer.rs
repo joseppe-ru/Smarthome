@@ -1,8 +1,6 @@
 use std::io::Write;
 use std::net::TcpStream;
-use std::sync::Arc;
 use mqtt_packet_3_5::{ ConnectPacket, MqttPacket,};
-use tokio::sync::Mutex;
 
 #[derive(Debug)]
 pub struct TcpWriter {
@@ -12,26 +10,20 @@ pub struct TcpWriter {
 impl TcpWriter {
 
     pub fn new(id:String)->Self{Self{cli_id:id}}
-    pub async fn write_stream(&mut self,mut std_stream:Arc<Mutex<std::net::TcpStream>>,connect_packet: ConnectPacket, packet:MqttPacket)->bool{
-        let mut std_stream = std_stream.lock().await;
-        println!("[writer: {:?}] received packet to write: {:?}",connect_packet.client_id,packet);
+    pub fn write_stream(&mut self,mut std_stream:std::net::TcpStream,connect_packet: ConnectPacket, packet:MqttPacket)->bool{
+        println!("[writer: {:?}] received packet to write: {:?}",self.cli_id,packet);
 
         let encoded_packet = packet.encode(connect_packet.protocol_version).expect("[writer] failed to encode ConAck");
 
         match std_stream.write_all(&encoded_packet){
-            Ok(_)=> { println!("[writer  ] successfully wrote Packet");true },
-            Err(e)=> { eprintln!("[writer  ] Fehler beim senden von ConAck (err: {:?}",e);false }
+            Ok(_)=> { println!("[writer  {:?}] successfully wrote Packet",self.cli_id);true },
+            Err(e)=> { eprintln!("[writer  {:?}] Fehler beim senden von ConAck (err: {:?}",self.cli_id,e);false }
         }
     }
 
-    pub async fn handle_connect(&mut self,connect_packet: ConnectPacket, mut tcp_stream: Arc<Mutex<std::net::TcpStream>>) ->bool{
+    pub async fn handle_connect(&mut self,connect_packet: ConnectPacket, mut tcp_stream: TcpStream) ->bool{
         //let mut client = client.lock().await;
-        let mut tcp_stream = tcp_stream.lock().await;
         let mqtt_version=connect_packet.protocol_version;
-        println!("[writer  ] client id: {:?}, protokoll: {:?}",
-                 connect_packet.client_id,
-                 mqtt_version, );
-
 
         //TODO: auch mal in betracht ziehen:
         // let mut granted = vec![];
@@ -55,7 +47,7 @@ impl TcpWriter {
        // let encoded_packet=connack.encode(5).expect("[conn-ack] encoding failed");
         match tcp_stream.write_all(&encoded_packet){
             Ok(_)=>true,
-            Err(e)=>{eprintln!("[writer  ] failed to write (e: {:?}",e); false}
+            Err(e)=>{eprintln!("[writer  {:?}] failed to write (e: {:?}",self.cli_id,e); false}
         }
     }
 

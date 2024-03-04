@@ -1,9 +1,7 @@
 use std::{sync::{Arc}};
-use std::io::Read;
 use tokio::net::{TcpStream ,TcpListener};
 use std::time::Duration;
 use tokio::{sync::Mutex};
-use tokio::task::JoinHandle;
 use tokio::time::sleep;
 use crate::broker::client::Client;
 use crate::broker::message_queue::MessageQueue;
@@ -21,45 +19,31 @@ pub async fn broker_setup()->Result<(),&'static str>{
     let queue = Arc::new(Mutex::new(message_queue::MessageQueue::new()));
     //worker starten (Consumer der Queue)
     let queue_clone=Arc::clone(&queue);
-    let worker = tokio::spawn(async move { worker::worker_process(queue_clone).await });
+    tokio::spawn(async move { worker::worker_process(queue_clone).await });
 
     println!("[broker] Listener wird gestartet");
 
-    let listener = TcpListener::bind("0.0.0.0:1883").await.expect("failed to bind address");
+    let listener = TcpListener::bind("0.0.0.0:1885").await.expect("failed to bind address");
     
     while let Ok((stream,_)) = listener.accept().await{
         println!("[broker  ] Neuer MQTT_Client connected: {:?}",stream.peer_addr());
         let queue_clone=Arc::clone(&queue);
-        tokio::spawn(async move { handle_connect(stream, queue_clone).await });
+        tokio::spawn(handle_connect(stream,queue_clone));
     }
-     
-       /*
-    loop{
-        let (stream,_)=listener.accept().await.unwrap();
-        println!("[broker  ] Neuer MQTT_Client connected: {:?}",stream.peer_addr());
-        let queue_clone=Arc::clone(&queue);
-        tokio::spawn(async move { handle_connect(stream, queue_clone).await});
-    }
-        */
-        
-    //return tokio::spawn(async move {pace_holder("broker").await});
-    Ok(())
+
+    Ok(pace_holder("broker").await.unwrap())
 }
 
-async fn handle_connect(mut tokio_stream:TcpStream,queue:Arc<Mutex<MessageQueue>>)->Result<(),&'static str>{
+async fn handle_connect(tokio_stream:TcpStream,queue:Arc<Mutex<MessageQueue>>)->Result<(),&'static str>{
 
         //tokio TcpStream in std TcpStream umwandeln
-    let mut std_stream=Arc::new(Mutex::new(tokio_stream.into_std().expect("[broker  ] failed to convert tokio to std")));
+    let std_stream=tokio_stream.into_std().expect("[broker  ] failed to convert tokio to std");
     //let std_stream=tokio_stream;
-
-    let stream_clone = Arc::clone(&std_stream);
-    show_stream(stream_clone).await;
-    show_stream(Arc::clone(&std_stream)).await;
 
     //connectpacket raus lesen
     let conn_pack = TcpReader::get_connect_packet(
-        Arc::clone(&std_stream)
-    ).await.expect("[broker  ] Fehler beim finden des Connect Paketes");
+        std_stream.try_clone().unwrap()
+    ).expect("[broker  ] Fehler beim finden des Connect Paketes");
 
         //neuer Tcp-Handler -> hat Funktionen: zum sperren des Cients; senden und empfagnen über Client.stream
     let tcp_writer = TcpWriter::new(conn_pack.client_id.clone());
@@ -80,16 +64,8 @@ async fn handle_connect(mut tokio_stream:TcpStream,queue:Arc<Mutex<MessageQueue>
 }
 
 async fn pace_holder(_name:&str)->Result<(), &'static str>{
-    println!("[broker    ] Modul {_name} nicht aktiv!");
-    sleep(Duration::from_millis(1000)).await;
-    Ok(())
-}
-
-async fn show_stream(mut stream:Arc<Mutex<std::net::TcpStream>>){
-    let mut stream = stream.lock().await;
-    let mut buf:[u8;1024] = [0;1024];
-    let bytes = stream.read(&mut buf).expect("[reader  ] failed to read stream");
-    println!("[broker  ] counting bytes...{}",bytes);
-    println!("[broker  ] Stream_data: {:X?}",buf);
-    println!("[broker  ] [End of Stream]");
+    loop{
+        println!("[main  ] Modul '{_name}' nicht aktiv!");
+        sleep(Duration::from_millis(1000)).await;
+    }
 }

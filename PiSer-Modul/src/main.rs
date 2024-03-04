@@ -3,15 +3,17 @@ mod http_server;
 mod broker;
 
 use std::io::{stdout, BufWriter};
-use std::time::Duration;
-use warp::Filter;
+
+//use warp::Filter;
 use ferris_says::say;
-use futures::{SinkExt, StreamExt};
-use tokio::task::JoinHandle;
-use tokio::sync::oneshot;
+use tokio::{
+    task::JoinHandle,
+    sync::oneshot,
+    //time::{Duration,sleep}
+};
+
 use local_ip_address::list_afinet_netifas;
-use mqtt_packet_3_5::{ConnackPacket, ConnackProperties, MqttPacket, UserProperties};
-use tokio::time::sleep;
+
 
 
 async fn flatten<T>(handle: JoinHandle<Result<T, &'static str>>) -> Result<T, &'static str> {
@@ -74,9 +76,11 @@ async fn main() {
     }
 }
 
+/*
 async fn pace_holder(_name:&str)->Result<(), &'static str>{
     loop {
         println!("[main    ] Modul {_name} nicht aktiv!");
-        sleep(Duration::from_millis(10000)).await;
+        let _ = sleep(Duration::from_millis(10000)).await;
     }
 }
+*/

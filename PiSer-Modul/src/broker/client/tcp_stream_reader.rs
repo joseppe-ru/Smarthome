@@ -1,25 +1,24 @@
-use std::io::Read;
-use std::net::TcpStream;
-use std::sync::Arc;
+use std::{sync::Arc};
 use mqtt_packet_3_5::{ConnectPacket, MqttPacket, PacketDecoder};
-use tokio::sync::Mutex;
-use crate::broker::client::Client;
-use crate::broker::message_queue::MQ;
+use tokio::{
+    time::{sleep,Duration},
+    sync::Mutex
+};
+use crate::broker::{message_queue::MessageQueue,client::Client};
 
 #[derive(Debug)]
 pub struct TcpReader{
     client:Arc<Mutex<Client>>,
-    queue:MQ,
+    queue:Arc<Mutex<MessageQueue>>,
 }
 
 impl TcpReader {
-    pub fn new (client:Arc<Mutex<Client>>,queue:MQ) ->Self{Self{client,queue}}
+    pub fn new (client:Arc<Mutex<Client>>,queue:Arc<Mutex<MessageQueue>>) ->Self{Self{client,queue}}
 
     //das verbindung mqtt packet herrausfinden
-    pub async fn get_connect_packet(tcp_stream:Arc<Mutex<std::net::TcpStream>>)->Result<ConnectPacket,&'static str>{
-        let tcp_stream = tcp_stream.lock().await;
+    pub fn get_connect_packet(tcp_stream:std::net::TcpStream)->Result<ConnectPacket,&'static str>{
         println!("[reader  ]analysieren des Connect-Paketes");
-        let mut packet_decoder:PacketDecoder<std::net::TcpStream> = PacketDecoder::from_stream(tcp_stream.into());
+        let mut packet_decoder:PacketDecoder<std::net::TcpStream> = PacketDecoder::from_stream(tcp_stream.try_clone().unwrap());
 
         match packet_decoder.decode_packet(3){
             Ok(MqttPacket::Connect(connect)) => {
@@ -41,14 +40,14 @@ impl TcpReader {
     }
 
     pub async fn message_handler(&mut self){
-        let client_lock = self.client.lock().await;
-        //println!("[reader {:?}] Read tcp stream... {:?}", client_lock.connect_packet.client_id,client_lock.tcp_stream.try_clone().unwrap());
-        //show_stream(client_lock.tcp_stream.try_clone().expect("[reader  ] failed to clone stream"));
-        let mqtt_version=client_lock.connect_packet.protocol_version;
 
-        let tcp_stream=client_lock.tcp_stream.lock().await;
-        let mut packet_decoder=PacketDecoder::from_stream(tcp_stream.into());
+        let client_lock = self.client.lock().await;
+        println!("[reader {:?}] Read tcp stream...", client_lock.connect_packet.client_id);
+        let mut packet_decoder=PacketDecoder::from_stream(client_lock.tcp_stream.try_clone().unwrap());
+        let mqtt_version=client_lock.connect_packet.protocol_version;
         drop(client_lock);//client Mutex dropped here
+
+        let _ = sleep(Duration::from_millis(10)).await;
 
         while packet_decoder.has_more(){
             println!("[reader  ] has_more");
@@ -79,12 +78,4 @@ impl TcpReader {
         }
         println!("[reader  ] process stopped")
     }
-}
-
-fn show_stream(mut stream:std::net::TcpStream){
-    let mut buf:[u8;1024] = [0;1024];
-    let bytes = stream.read(&mut buf).expect("[reader  ] failed to read stream");
-    println!("[reader  ] counting bytes...{}",bytes);
-    println!("[reader  ] Stream_data: {:X?}",buf);
-    println!("[reader  ] [End of Stream]");
 }

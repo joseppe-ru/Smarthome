@@ -1,13 +1,14 @@
-
+use std::sync::Arc;
 use mqtt_packet_3_5::MqttPacket;
 use tokio::{time::{sleep, Duration}};
-use crate::broker::message_queue;
+use tokio::sync::Mutex;
+use crate::broker::message_queue::MessageQueue;
 
 //TODO:
 // Die Messagequeue muss hier irgendwie als Zeiger/Referenz übergeben werden
 // sonst macht das lesen überhaupt keinen Sinn. Es steht nichts drin, da die
 // Queue von niemanden befüllt werden kann
-pub async fn worker_process(mut mq:message_queue::MQ){
+pub async fn worker_process(mq:Arc<Mutex<MessageQueue>>){
     loop{
         //println!("[worker] Zugriff auf Queue");
         let mut mq = mq.lock().await;

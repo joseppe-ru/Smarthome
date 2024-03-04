@@ -8,11 +8,8 @@ use warp::{
     ws::{Message, WebSocket},
 };
 use serde_json;
-use serde::de::DeserializeOwned;
 use std::fs::File;
-use std::fs;
 use std::io::Read;
-use rustc_serialize::json::Json;
 
 /* # Hier ist der Endpunkt des Websockets "wss://[ip:port]/websocket"
  */
@@ -87,18 +84,6 @@ async fn handle_client(web_socket: WebSocket){
 }
 
 
-/*
-fn get_mime_type(file_path: &str) -> &str {
-    match Path::new(file_path).extension().and_then(|ext| ext.to_str()) {
-        Some("html") => "text/html;charset=utf-8",
-        Some("css") => "text/css;charset=utf-8",
-        Some("js") => "application/javascript;charset=utf-8",
-        _ => "application/octet-stream;charset=utf-8",
-    }
-}
-*/
-
-
 pub async fn http_server_setup(shut_channel_rx: oneshot::Receiver<()>) ->Result<(), &'static str> {
     //Pfad: vom FrWeb-UI (HTML dateien etc...)
     let backüath=std::path::Path::new("../");
@@ -133,14 +118,6 @@ pub async fn http_server_setup(shut_channel_rx: oneshot::Receiver<()>) ->Result<
                 reply.into_response()
             }
         });
-
-        let alternative_route = warp::get()
-            .and(warp::fs::dir(project_folder.clone()))
-            .map(|reply: warp::filters::fs::File|{
-                println!("du bist doof!");
-                println!("Pfad noch nicht geroutet: {:?}",reply.path());
-                reply.into_response()
-            });
 
     let routes=warp::get()
         .and(ws_route
