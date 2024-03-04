@@ -1,3 +1,5 @@
 /_archive
 /tcp_listener_tester
 /rust_tester
+/PiSer_Modul/target
+/PiSer_Modul/.idea
