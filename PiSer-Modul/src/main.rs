@@ -9,7 +9,7 @@ use ferris_says::say;
 use tokio::{
     task::JoinHandle,
     sync::oneshot,
-    //time::{Duration,sleep}
+    time::{Duration,sleep}
 };
 
 use local_ip_address::list_afinet_netifas;
@@ -76,11 +76,10 @@ async fn main() {
     }
 }
 
-/*
+
 async fn pace_holder(_name:&str)->Result<(), &'static str>{
     loop {
         println!("[main    ] Modul {_name} nicht aktiv!");
         let _ = sleep(Duration::from_millis(10000)).await;
     }
 }
-*/

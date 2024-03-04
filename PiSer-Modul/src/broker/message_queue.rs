@@ -4,19 +4,20 @@ use tokio::sync::Mutex;
 use mqtt_packet_3_5::{MqttPacket, PublishPacket, SubackPacket, SubscribePacket};
 use rand::Rng;
 
-use crate::broker::client::Client;
+use crate::broker::client::MQTTClient;
 
 #[derive(Debug)]
 pub struct WorkerJob {
     pub job_id: u32,
     pub packet: MqttPacket,
-    pub subscribers: Vec<Arc<Mutex<Client>>>,
-    pub client: Arc<Mutex<Client>>,
+
+    pub subscribers: Vec<Arc<Mutex<MQTTClient>>>,
+    pub client: Arc<Mutex<MQTTClient>>,
 }
 
 #[derive(Debug, Default)]
 pub struct MessageQueue{
-    topic_subscription:HashMap<String,Vec<Arc<Mutex<Client>>>>,
+    topic_subscription:HashMap<String,Vec<Arc<Mutex<MQTTClient>>>>,
     jobs:VecDeque<WorkerJob>,
     pub job_counter:u32,
 }
@@ -29,7 +30,7 @@ impl MessageQueue{
         self.jobs.push_back(job);
     }
 
-    pub fn subscribe(&mut self, packet: SubscribePacket, client: Arc<Mutex<Client>>) -> bool {
+    pub fn subscribe(&mut self, packet: SubscribePacket, client: Arc<Mutex<MQTTClient>>) -> bool {
         println!("[queue   ] subscribe to topic");
 
         let mut granted = vec![];
@@ -60,7 +61,7 @@ impl MessageQueue{
         println!("[queue   ] pushed new worker job");
         true // let the Client know we registered him
     }
-    pub fn publish(&mut self, packet: PublishPacket, sender_client: Arc<Mutex<Client>>) -> bool {
+    pub fn publish(&mut self, packet: PublishPacket, sender_client: Arc<Mutex<MQTTClient>>) -> bool {
         //neuer Job zum Senden eines Paketes anlegen
         let clients_sub= self.topic_subscription
             .get(&packet.topic)

@@ -4,16 +4,16 @@ use tokio::{
     time::{sleep,Duration},
     sync::Mutex
 };
-use crate::broker::{message_queue::MessageQueue,client::Client};
+use crate::broker::{message_queue::MessageQueue,client::MQTTClient};
 
 #[derive(Debug)]
 pub struct TcpReader{
-    client:Arc<Mutex<Client>>,
+    client:Arc<Mutex<MQTTClient>>,
     queue:Arc<Mutex<MessageQueue>>,
 }
 
 impl TcpReader {
-    pub fn new (client:Arc<Mutex<Client>>,queue:Arc<Mutex<MessageQueue>>) ->Self{Self{client,queue}}
+    pub fn new (client:Arc<Mutex<MQTTClient>>, queue:Arc<Mutex<MessageQueue>>) ->Self{Self{client,queue}}
 
     //das verbindung mqtt packet herrausfinden
     pub fn get_connect_packet(tcp_stream:std::net::TcpStream)->Result<ConnectPacket,&'static str>{
