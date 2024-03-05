@@ -1,25 +1,35 @@
 use std::{sync::Arc};
+use std::io::{BufReader, Cursor};
+use futures::stream::SplitStream;
+use futures::StreamExt;
 use mqtt_packet_3_5::{ConnectPacket, MqttPacket, PacketDecoder};
 use tokio::{
     time::{sleep,Duration},
     sync::Mutex
 };
 use crate::broker::{message_queue::MessageQueue,client::MQTTClient};
-use crate::broker::client::KindOfClient;
+use crate::broker::client::{KindOfClient, MQTTWsClient};
 
 #[derive(Debug)]
-pub struct TcpReader{
-    client:Arc<Mutex<MQTTClient>>,
+pub struct WsReader{
+    client:Arc<Mutex<MQTTWsClient>>,
     queue:Arc<Mutex<MessageQueue>>,
 }
 
-impl TcpReader {
-    pub fn new (client:Arc<Mutex<MQTTClient>>, queue:Arc<Mutex<MessageQueue>>) ->Self{Self{client,queue}}
+impl WsReader {
+    pub fn new (client:Arc<Mutex<MQTTWsClient>>, queue:Arc<Mutex<MessageQueue>>) ->Self{Self{client,queue}}
 
     //das verbindung mqtt packet herrausfinden
-    pub fn get_connect_packet(tcp_stream:std::net::TcpStream)->Result<ConnectPacket,&'static str>{
+    pub async fn get_connect_packet(ws_rx: Arc<Mutex<SplitStream<warp::ws::WebSocket>>>)->Result<ConnectPacket,&'static str>{
         println!("[reader  ]analysieren des Connect-Paketes");
-        let mut packet_decoder:PacketDecoder<std::net::TcpStream> = PacketDecoder::from_stream(tcp_stream.try_clone().unwrap());
+        let mut ws_rx_lock =ws_rx.lock().await;
+        let mut recv = ws_rx_lock.next().await.expect("[ws-reader] Failed to get message");
+
+        if !recv.as_ref().unwrap().is_binary(){return Err("[ws-reader] is not binary")}
+
+        let buf = BufReader::new(Cursor::new(recv.unwrap().into_bytes()));
+
+        let mut packet_decoder = PacketDecoder::from_bufreader(buf);
 
         match packet_decoder.decode_packet(3){
             Ok(MqttPacket::Connect(connect)) => {
@@ -43,9 +53,17 @@ impl TcpReader {
     pub async fn message_handler(&mut self){
 
         let client_lock = self.client.lock().await;
+
         println!("[reader {:?}] Read tcp stream...", client_lock.connect_packet.client_id);
-        let mut packet_decoder=PacketDecoder::from_stream(client_lock.tcp_stream.try_clone().unwrap());
+        let mut rx_lock = client_lock.ws_rx.lock().await;
+        let recv = rx_lock.next().await.expect("[ws-reader] failed to get nex message");
+        let recv_cpy = recv.unwrap().clone();
+        if !recv.unwrap().is_binary(){return}
+        let buf = BufReader::new(Cursor::new(recv_cpy.into_bytes()));
+        let mut packet_decoder = PacketDecoder::from_bufreader(buf);
+
         let mqtt_version=client_lock.connect_packet.protocol_version;
+        drop(rx_lock);//rx Mutex dropped here
         drop(client_lock);//client Mutex dropped here
 
         let _ = sleep(Duration::from_millis(10)).await;
@@ -64,13 +82,13 @@ impl TcpReader {
                         println!("[reader  ] received Publish!");
                         let mut message_queue=self.queue.lock().await;
                         let client_clone = Arc::clone(&self.client);
-                        message_queue.publish(publ,KindOfClient::MQTTKind(client_clone));
+                        message_queue.publish(publ,KindOfClient::WsKind(client_clone));
                     },
                     MqttPacket::Subscribe(sub)=>{
                         println!("[reader  ] received Subscribe!");
                         let mut message_queue=self.queue.lock().await;
                         let client_clone = Arc::clone(&self.client);
-                        message_queue.subscribe(sub,KindOfClient::MQTTKind(client_clone));
+                        message_queue.subscribe(sub,KindOfClient::WsKind(client_clone));
                     },//MessageQueue Mutex dropped here
                     fxxked_up_packet => {eprintln!("unbekannter Packet-Typ: {:?}",fxxked_up_packet);}
                 },

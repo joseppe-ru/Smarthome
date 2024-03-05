@@ -14,7 +14,7 @@ use tokio::io::BufReader;
 
 use crate::broker::{
     client::{
-        Client,
+        MQTTClient,
         tcp_stream_writer::TcpWriter,
         tcp_stream_reader::TcpReader
     },
@@ -79,7 +79,7 @@ async fn handle_connect(tokio_stream:tokio::net::TcpStream,queue:Arc<Mutex<Messa
     let tcp_writer = TcpWriter::new(conn_pack.client_id.clone());
 
         //neuer Client-Handler
-    let client_handler = Arc::new(Mutex::new(Client::start_new_client(std_stream, Arc::clone(&queue), conn_pack, tcp_writer)));
+    let client_handler = Arc::new(Mutex::new(MQTTClient::start_new_client(std_stream, Arc::clone(&queue), conn_pack, tcp_writer)));
 
         //neuer Reader
     let mut tcp_reader = TcpReader::new(Arc::clone(&client_handler),Arc::clone(&queue));

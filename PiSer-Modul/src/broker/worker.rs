@@ -2,6 +2,7 @@ use std::sync::Arc;
 use mqtt_packet_3_5::MqttPacket;
 use tokio::{time::{sleep, Duration}};
 use tokio::sync::Mutex;
+use crate::broker::client::KindOfClient;
 use crate::broker::message_queue::MessageQueue;
 
 //TODO:
@@ -21,13 +22,29 @@ pub async fn worker_process(mq:Arc<Mutex<MessageQueue>>){
                         for subscriber in job.subscribers.into_iter(){
                             //subscriber.writer.write_packet(publish.clone());
                             println!("Publishing to all subscribers!! {:?},{:?}",subscriber,publish);
-                            let mut client = subscriber.lock().await;
-                            client.write(publish.clone()).await;
+                            match subscriber{
+                                KindOfClient::WsKind(ref ws)=> {
+                                    let mut ws_lock = ws.lock().await;
+                                    ws_lock.write(publish.clone()).await;
+                                },
+                                KindOfClient::MQTTKind(ref mq)=> {
+                                    let mut mq_lock = mq.lock().await;
+                                    mq_lock.write(publish.clone()).await;
+                                }
+                            }
                         }
                     }
                     suback @ MqttPacket::Suback(_)=>{
-                        let mut client = job.client.lock().await;
-                        client.write(suback).await;
+                        match job.client{
+                            KindOfClient::WsKind(ref ws)=> {
+                                let mut ws_lock = ws.lock().await;
+                                ws_lock.write(suback.clone()).await;
+                            },
+                            KindOfClient::MQTTKind(ref mq)=> {
+                                let mut mq_lock = mq.lock().await;
+                                mq_lock.write(suback.clone()).await;
+                            }
+                        }
                     }
                     nüscht => eprintln!("[worker  ] kein worker-job für packet: {:?}",nüscht)
                 }

@@ -4,19 +4,19 @@ use tokio::sync::Mutex;
 use mqtt_packet_3_5::{MqttPacket, PublishPacket, SubackPacket, SubscribePacket};
 use rand::Rng;
 
-use crate::broker::client::Client;
+use crate::broker::client::{KindOfClient, MQTTClient};
 
 #[derive(Debug)]
 pub struct WorkerJob {
     pub job_id: u32,
     pub packet: MqttPacket,
-    pub subscribers: Vec<Arc<Mutex<Client>>>,
-    pub client: Arc<Mutex<Client>>,
+    pub subscribers: Vec<KindOfClient>,
+    pub client: KindOfClient,
 }
 
 #[derive(Debug, Default)]
 pub struct MessageQueue{
-    topic_subscription:HashMap<String,Vec<Arc<Mutex<Client>>>>,
+    topic_subscription:HashMap<String,Vec<KindOfClient>>,
     jobs:VecDeque<WorkerJob>,
     pub job_counter:u32,
 }
@@ -29,7 +29,7 @@ impl MessageQueue{
         self.jobs.push_back(job);
     }
 
-    pub fn subscribe(&mut self, packet: SubscribePacket, client: Arc<Mutex<Client>>) -> bool {
+    pub fn subscribe(&mut self, packet: SubscribePacket, client: KindOfClient) -> bool {
         println!("[queue   ] subscribe to topic");
 
         let mut granted = vec![];
@@ -37,7 +37,10 @@ impl MessageQueue{
         for subscription in packet.subscriptions.into_iter() {
             println!("[queue   ] pushed sub to topic {:?}",subscription.topic);
             let subscribers = self.topic_subscription.entry(subscription.topic).or_default();
-            subscribers.push(Arc::clone(&client));
+            subscribers.push(match client{
+                KindOfClient::WsKind(ref ws)=>KindOfClient::WsKind(Arc::clone(ws)),
+                KindOfClient::MQTTKind(ref mq)=>KindOfClient::MQTTKind(Arc::clone(mq))
+            },);
 
             // we will need to send a SUBACK to the subscriber
             // in which we will let the subscriber know which QoS level
@@ -53,26 +56,38 @@ impl MessageQueue{
             // use helper method for creating a basic MQTTv3 SUBACK packet
             packet: MqttPacket::Suback(SubackPacket::new_v3(packet.message_id, granted)),
             subscribers: vec![],
-            client:Arc::clone(&client),
+            client:match client{
+                KindOfClient::WsKind(ref ws)=>KindOfClient::WsKind(Arc::clone(ws)),
+                KindOfClient::MQTTKind(ref mq)=>KindOfClient::MQTTKind(Arc::clone(mq))
+            },
         };
 
         self.add_job(new_job);
         println!("[queue   ] pushed new worker job");
         true // let the Client know we registered him
     }
-    pub fn publish(&mut self, packet: PublishPacket, sender_client: Arc<Mutex<Client>>) -> bool {
+    pub fn publish(&mut self, packet: PublishPacket, sender_client: KindOfClient) -> bool {
         //neuer Job zum Senden eines Paketes anlegen
-        let clients_sub= self.topic_subscription
-            .get(&packet.topic)
-            .expect("[queue  ] keine Clients zum topic gefunden")
-            .clone();
+        let clients_sub= self.topic_subscription.get(&packet.topic)
+            .expect("[queue  ] keine Clients zum topic gefunden");
+
+        let mut client_sub = Vec::new();
+            for sub_clients in self.topic_subscription.get(&packet.topic).expect("[queue  ] keine Clients zum topic gefunden"){
+                client_sub.push(match sub_clients {
+                KindOfClient::WsKind(ws)=>KindOfClient::WsKind(Arc::clone(ws)),
+                KindOfClient::MQTTKind(mq)=>KindOfClient::MQTTKind(Arc::clone(mq))
+            })
+        };
 
             let id = self.get_job_id().clone();
             self.add_job(WorkerJob{
                 job_id:id,
                 packet:MqttPacket::Publish(packet.clone()),
-                subscribers:clients_sub.clone(),
-                client:Arc::clone(&sender_client),
+                subscribers:client_sub ,
+                client:match sender_client{
+                    KindOfClient::WsKind(ref ws)=>KindOfClient::WsKind(Arc::clone(ws)),
+                    KindOfClient::MQTTKind(ref mq)=>KindOfClient::MQTTKind(Arc::clone(mq))
+                },
             });
 
         true
