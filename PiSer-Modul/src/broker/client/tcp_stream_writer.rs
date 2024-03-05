@@ -13,10 +13,11 @@ impl TcpWriter {
     pub fn new(id:String)->Self{Self{cli_id:id}}
     pub fn write_mqtt_stream(&mut self, mut std_stream:std::net::TcpStream, connect_packet: ConnectPacket, packet:MqttPacket) ->bool{
         let log_id = self.cli_id.clone();
-        println!("[writer: {log_id}] received packet to write: {:?}",packet.type_id());
+        let conn_id = connect_packet.client_id.clone();
+        println!("[writer: {log_id}] received packet for {conn_id} to write: {:?}",packet.type_id());
 
-        let encoded_packet = packet.encode(connect_packet.protocol_version).expect("[writer] failed to encode ConAck");
-
+        let encoded_packet = packet.encode(3).expect("[writer] failed to encode ConAck");
+        println!("[writer] stream:{:?}",std_stream.try_clone().unwrap());
         match std_stream.write_all(&encoded_packet){
             Ok(_)=> { println!("[writer  {log_id}] successfully wrote Packet");true },
             Err(e)=> { eprintln!("[writer  {log_id}] Fehler beim senden von ConAck (err: {:?}",e);false }
@@ -53,6 +54,4 @@ impl TcpWriter {
             Err(e)=>{eprintln!("[writer  {log_id}] failed to write connect packet (e: {:?}",e); false}
         }
     }
-
-
 }
