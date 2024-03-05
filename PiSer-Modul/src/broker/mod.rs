@@ -10,18 +10,21 @@ use tokio::{
     io::AsyncBufReadExt,
     net::TcpListener,
 };
-use tokio::io::BufReader;
 
 use crate::broker::{
     client::{
         MQTTClient,
+        MQTTWsClient,
         tcp_stream_writer::TcpWriter,
-        tcp_stream_reader::TcpReader
+        tcp_stream_reader::TcpReader,
+        ws_stream_writer::WsWriter,
+        ws_stream_reader::WsReader,
     },
     message_queue::MessageQueue,
 };
 
-use tokio_tungstenite::{accept_async, WebSocketStream};
+use warp::{Filter};
+
 mod client;
 mod message_queue;
 mod worker;
@@ -41,7 +44,7 @@ pub async fn broker_setup()->Result<(),&'static str>{
     println!("[broker] Listener wird gestartet");
 
     let mqtt_listener = TcpListener::bind("0.0.0.0:1885").await.expect("failed to bind address");
-    let mqtt_ws_listener = TcpListener::bind("0.0.0.0:1886").await.expect("[broker  ] failed to bind ws-address");
+
     tokio::spawn(
         async move {
             while let Ok((stream, _)) = mqtt_listener.accept().await {
@@ -53,14 +56,38 @@ pub async fn broker_setup()->Result<(),&'static str>{
     );
 
     //tcp-listener für Websocket mit warp:
-    //let mqtt_route=warp.any().map(|ws:ws::WS::websocket| {})...
+    let mqtt_route=warp::any()
+        .and(warp::ws())
+        .map(move |ws:warp::ws::Ws|{
+            println!("[broker] MQTT-Server für Websocket");
+            let queue_clone_ws_client = Arc::clone(&queue_clone_ws_client);
+            ws.on_upgrade(move|websocket |async move {
+                handle_ws_connect(websocket, queue_clone_ws_client.clone()).await.expect("[broker] Failed to handle new Websocket MQTT: ");
+            })
+        });
+    warp::serve(mqtt_route)
+        //.bind_with_graceful_shutdown(([0,0,0,0],1886),async { shut_ws_mqtt_rx.await.ok(); });
+        .bind(([0, 0, 0, 0], 1886)).await;
+
 
     Ok(())//Ok(pace_holder("broker").await.unwrap())
 }
 
-async fn handle_ws_connect(tokio_stream:tokio::net::TcpStream,queue:Arc<Mutex<MessageQueue>>)->Result<(),&'static str>{
-    //websocket upgrade mit warp
-    //websocket chat server erstellen und dann in worker und jobs ... von MQTT-Broker integrieren
+async fn handle_ws_connect(websocket:warp::ws::WebSocket,queue:Arc<Mutex<MessageQueue>>)->Result<(),&'static str>{
+
+    let (tx,rx)=websocket.split();
+    let ws_rx=Arc::new(Mutex::new(rx));
+    let ws_tx=Arc::new(Mutex::new(tx));
+    let conn_pack = WsReader::get_connect_packet(Arc::clone(&ws_rx)).await.expect("failed zo get connect_packet");
+
+    let writer=WsWriter::new(conn_pack.client_id.clone());
+    let client=Arc::new(Mutex::new(MQTTWsClient::start_new_client(writer,Arc::clone(&queue),conn_pack.clone(),Arc::clone(&ws_rx),Arc::clone(&ws_tx))));
+    let mut reader = WsReader::new(client,queue);
+
+    reader.handle_connect().await;
+    reader.message_handler().await;
+
+
 Ok(())
 }
 

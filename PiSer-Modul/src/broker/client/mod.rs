@@ -13,7 +13,7 @@ use crate::broker::{
 pub mod tcp_stream_writer;
 pub(crate) mod tcp_stream_reader;
 pub mod ws_stream_writer;
-mod ws_stream_reader;
+pub(crate) mod ws_stream_reader;
 
 #[derive(Debug)]
 pub enum KindOfClient{
@@ -55,7 +55,7 @@ impl MQTTClient {
 }
 
 #[derive(Debug)]
-struct MQTTWsClient{
+pub struct MQTTWsClient{
     pub connect_packet: ConnectPacket,
     ws_writer: WsWriter,
     pub message_queue: Arc<Mutex<MessageQueue>>,

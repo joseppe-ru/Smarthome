@@ -56,10 +56,10 @@ impl WsReader {
 
         println!("[reader {:?}] Read tcp stream...", client_lock.connect_packet.client_id);
         let mut rx_lock = client_lock.ws_rx.lock().await;
-        let recv = rx_lock.next().await.expect("[ws-reader] failed to get nex message");
-        let recv_cpy = recv.unwrap().clone();
-        if !recv.unwrap().is_binary(){return}
-        let buf = BufReader::new(Cursor::new(recv_cpy.into_bytes()));
+        let recv = rx_lock.next().await.expect("[ws-reader] failed to get nex message").unwrap();
+
+        if !recv.clone().is_binary(){return}
+        let buf = BufReader::new(Cursor::new(recv.into_bytes()));
         let mut packet_decoder = PacketDecoder::from_bufreader(buf);
 
         let mqtt_version=client_lock.connect_packet.protocol_version;
