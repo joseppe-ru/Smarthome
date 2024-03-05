@@ -3,21 +3,19 @@ use std::sync::{Arc};
 use tokio::sync::Mutex;
 use mqtt_packet_3_5::{MqttPacket, PublishPacket, SubackPacket, SubscribePacket};
 use rand::Rng;
-
-use crate::broker::client::MQTTClient;
+use crate::broker::client::KindOfClient;
 
 #[derive(Debug)]
 pub struct WorkerJob {
     pub job_id: u32,
     pub packet: MqttPacket,
-
-    pub subscribers: Vec<Arc<Mutex<MQTTClient>>>,
-    pub client: Arc<Mutex<MQTTClient>>,
+    pub subscribers: Vec<KindOfClient>,
+    pub client: KindOfClient,
 }
 
 #[derive(Debug, Default)]
 pub struct MessageQueue{
-    topic_subscription:HashMap<String,Vec<Arc<Mutex<MQTTClient>>>>,
+    topic_subscription:HashMap<String,Vec<KindOfClient>>,
     jobs:VecDeque<WorkerJob>,
     pub job_counter:u32,
 }
@@ -30,15 +28,14 @@ impl MessageQueue{
         self.jobs.push_back(job);
     }
 
-    pub fn subscribe(&mut self, packet: SubscribePacket, client: Arc<Mutex<MQTTClient>>) -> bool {
-        println!("[queue   ] subscribe to topic");
+    pub fn subscribe(&mut self, packet: SubscribePacket, client: KindOfClient) -> bool {
 
         let mut granted = vec![];
         // add the client reference to each topic
         for subscription in packet.subscriptions.into_iter() {
-            println!("[queue   ] pushed sub to topic {:?}",subscription.topic);
+            println!("[queue] pushed {:?} sub to topic {:?}",packet.message_id,subscription.topic);
             let subscribers = self.topic_subscription.entry(subscription.topic).or_default();
-            subscribers.push(Arc::clone(&client));
+            subscribers.push(client.clone());
 
             // we will need to send a SUBACK to the subscriber
             // in which we will let the subscriber know which QoS level
@@ -47,35 +44,35 @@ impl MessageQueue{
             // level the MQTT broker supports for now
             granted.push(mqtt_packet_3_5::Granted::QoS0);
         }
-
+        let new_job_id=self.get_job_id();
         // create a new job for sending the SUBACK
         let new_job = WorkerJob {
-            job_id:self.get_job_id(),
+            job_id:new_job_id,
             // use helper method for creating a basic MQTTv3 SUBACK packet
             packet: MqttPacket::Suback(SubackPacket::new_v3(packet.message_id, granted)),
             subscribers: vec![],
-            client:Arc::clone(&client),
+            client:client.clone(),
         };
 
         self.add_job(new_job);
-        println!("[queue   ] pushed new worker job");
+        println!("[queue] pushed new worker job: {}",new_job_id);
         true // let the Client know we registered him
     }
-    pub fn publish(&mut self, packet: PublishPacket, sender_client: Arc<Mutex<MQTTClient>>) -> bool {
+    pub fn publish(&mut self, packet: PublishPacket, sender_client: KindOfClient) -> bool {
         //neuer Job zum Senden eines Paketes anlegen
         let clients_sub= self.topic_subscription
             .get(&packet.topic)
-            .expect("[queue  ] keine Clients zum topic gefunden")
+            .expect("[queue] keine Clients zum topic gefunden")
             .clone();
 
-            let id = self.get_job_id().clone();
+            let new_job_id = self.get_job_id().clone();
             self.add_job(WorkerJob{
-                job_id:id,
+                job_id:new_job_id,
                 packet:MqttPacket::Publish(packet.clone()),
-                subscribers:clients_sub.clone(),
-                client:Arc::clone(&sender_client),
+                subscribers: clients_sub.clone(),
+                client:sender_client.clone(),
             });
-
+        println!("[queue] pushed new worker job: {}",new_job_id);
         true
 
     }
@@ -91,8 +88,7 @@ impl MessageQueue{
 
     fn get_job_id(&mut self) -> u32 {
         let mut rand_gen = rand::thread_rng();
-        let randnum = rand_gen.gen::<u32>();
-        println!("[queue  ] random JobID: {randnum}");
-        randnum
+        let random = rand_gen.gen::<u32>();
+        random
     }
 }

@@ -3,16 +3,15 @@ use futures::stream::{SplitSink, SplitStream};
 use mqtt_packet_3_5::{ConnectPacket, MqttPacket};
 use tokio::sync::Mutex;
 use crate::broker::client::tcp_stream_writer::TcpWriter;
-use crate::broker::client::ws_stream_writer::WSWriter;
 use crate::broker::message_queue::MessageQueue;
 
 #[derive(Debug)]
 pub struct MqttWsClient {
     pub connect_packet: ConnectPacket,
     pub message_queue: Arc<Mutex<MessageQueue>>,
-    ws_writer: WSWriter,
+    ws_writer: TcpWriter,
     pub ws_rx:Arc<Mutex<SplitStream<warp::ws::WebSocket>>>,
-    ws_tx:Arc<Mutex<SplitSink<warp::ws::WebSocket,warp::ws::Message>>>,
+    pub ws_tx:Arc<Mutex<SplitSink<warp::ws::WebSocket,warp::ws::Message>>>,
 }
 
 impl MqttWsClient {
@@ -20,9 +19,9 @@ impl MqttWsClient {
                                 ws_tx:Arc<Mutex<SplitSink<warp::ws::WebSocket,warp::ws::Message>>>,
                                 mq:Arc<Mutex<MessageQueue>>,
                                 conn_pack:ConnectPacket,
-                                ws_handler:WSWriter) ->Self{
+                                ws_handler:TcpWriter) ->Self{
 
-        println!("[client: {:?}] wird erstellt",conn_pack.client_id);
+        println!("[ws-client: {:?}] wird erstellt",conn_pack.client_id);
         //neuen Client initialisieren > mit Mutex sperren um Fehlerhaft Zugriffe zu vermeiden
         let client = Self {
             connect_packet:conn_pack,

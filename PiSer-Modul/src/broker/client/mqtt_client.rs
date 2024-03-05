@@ -18,7 +18,7 @@ pub struct MQTTClient {
 
 impl MQTTClient {
     pub fn start_new_client(std_stream:std::net::TcpStream, mq:Arc<Mutex<MessageQueue>>, conn_pack:ConnectPacket, tcp_handler:TcpWriter) ->Self{
-        println!("[client: {:?}] wird erstellt",conn_pack.client_id);
+        println!("[client-mqtt: {:?}] wird erstellt",conn_pack.client_id);
         //neuen Client initialisieren > mit Mutex sperren um Fehlerhaft Zugriffe zu vermeiden
         let client = Self {
             connect_packet:conn_pack,
@@ -30,13 +30,13 @@ impl MQTTClient {
     }
 
     pub async fn connection_handler(&mut self){
-        self.tcp_writer.handle_connect(
+        self.tcp_writer.handle_mqtt_connect(
             self.connect_packet.clone(),
             self.tcp_stream.try_clone().expect("[client] failed to clone tcp_stream")
         ).await;
     }
 
     pub async fn write(&mut self,packet:MqttPacket){
-        self.tcp_writer.write_stream(self.tcp_stream.try_clone().unwrap(),self.connect_packet.clone(),packet);
+        self.tcp_writer.write_mqtt_stream(self.tcp_stream.try_clone().unwrap(), self.connect_packet.clone(), packet);
     }
 }
