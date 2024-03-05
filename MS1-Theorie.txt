@@ -48,8 +48,9 @@ FrWeb-UI:
 
 PiPi-Com:
     Server-teil läuft auf PiSer-Modul
-    Client erstmal Python, später aber auch alles andere Möglich, je nach Anwendungsbereich
-
+    # Client erstmal Python, später aber auch alles andere Möglich, je nach Anwendungsbereich
+	Client auch gern in Rust
+	
 RaAr-Anal-com:
     Kommt ganz auf PiPi-Com Client an
     ! erstmal nachgestellt

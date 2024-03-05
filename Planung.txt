@@ -81,20 +81,21 @@ Soll automatisch neu starten, sobald ich etwas an der html oder js datei geände
 #
 # 2.1 (PSM)
 #	RUSTikaler ansatzt für Webserver
-#		- HTTP Server
-		- MQTT-Server
-#		- Website integrieren
++		- HTTP Server
++		- MQTT-Server
++		- Website integrieren
 #
-
-2.3 (FWU)
-	Website für Server
-		- Basic Input und Output element (zum Testen)
-		- JS kommunikation über http mit Rust
-
+#
+# 2.3 (FWU)
+#	Website für Server
+#		- Basic Input und Output element (zum Testen)
+#		- JS kommunikation über http mit Rust -> websocket (auch mqtt funktioniert über websockets)
+ 
 2.4 (PIPI-Com)
 	MQTT Client auf Raspi 1 B+
 		- austausch mit Server
 		- Eingabe und Ausgabe Methode
+		- Rust auf Raspi 1B+ ohne Betribesystem?
 
 MS2: Alle Tests abgeschlossen!!
 	-> an diesem Punkt brauche ich:
