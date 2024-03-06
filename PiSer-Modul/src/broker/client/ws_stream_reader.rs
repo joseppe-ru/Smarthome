@@ -22,12 +22,13 @@ impl WsReader {
     //das verbindung mqtt packet herrausfinden
     pub async fn get_connect_packet(ws_rx: Arc<Mutex<SplitStream<warp::ws::WebSocket>>>)->Result<ConnectPacket,&'static str>{
         println!("[reader  ]analysieren des Connect-Paketes");
-        let mut ws_rx_lock =ws_rx.lock().await;
-        let mut recv = ws_rx_lock.next().await.expect("[ws-reader] Failed to get message");
 
-        if !recv.as_ref().unwrap().is_binary(){return Err("[ws-reader] is not binary")}
+        let mut ws_rx_lock = ws_rx.lock().await;
+        let recv = ws_rx_lock.next().await.expect("[ws-reader] Failed to get message").expect("[ws-reader] Error getting message");
 
-        let buf = BufReader::new(Cursor::new(recv.unwrap().into_bytes()));
+        if !recv.clone().is_binary(){return Err("[ws-reader] is not binary")}
+
+        let buf = BufReader::new(Cursor::new(recv.into_bytes()));
 
         let mut packet_decoder = PacketDecoder::from_bufreader(buf);
 

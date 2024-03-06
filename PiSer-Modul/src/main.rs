@@ -3,17 +3,16 @@ mod http_server;
 mod broker;
 
 use std::io::{stdout, BufWriter};
+use std::time::Duration;
 
-//use warp::Filter;
 use ferris_says::say;
 use tokio::{
     task::JoinHandle,
     sync::oneshot,
-    //time::{Duration,sleep}
 };
 
 use local_ip_address::list_afinet_netifas;
-
+use tokio::time::sleep;
 
 
 async fn flatten<T>(handle: JoinHandle<Result<T, &'static str>>) -> Result<T, &'static str> {
@@ -53,7 +52,7 @@ async fn main() {
         let input = tokio::spawn(input_control::system_input(shut_channel_sender));
         //let input = tokio::spawn(pace_holder("input"));
         let broker = tokio::spawn(broker::broker_setup());
-        //let broker = tokio::spawn(pace_holder("broker"));
+        //let broker = tokio::spawn(async move { loop { pace_holder("broker").await } });
 
 
         let processing_res = tokio::try_join!(
@@ -76,11 +75,9 @@ async fn main() {
     }
 }
 
-/*
+
 async fn pace_holder(_name:&str)->Result<(), &'static str>{
-    loop {
         println!("[main    ] Modul {_name} nicht aktiv!");
         let _ = sleep(Duration::from_millis(10000)).await;
-    }
+    Ok(())
 }
-*/

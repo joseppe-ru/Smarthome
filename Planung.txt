@@ -117,3 +117,12 @@ Modul Plan:
   - TSL/SSL sicherheit bei zugriff auf website
   - Zugriff von Handy (im selbern Netzwerk und von ausßerhalb) -> Zertifikat? oder kann sich immer nur ein gerät auf den websockert verbinden?
   - 
+
+
+
+
+TSL/SSL
+gracefully shutdown für alle
+error handling
+self restarting
+idle, when crashed
