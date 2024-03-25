@@ -109,6 +109,5 @@ function create_device(dev){
             console.log("Gerätetyp noch nicht eingerichtet...")
             break
         }
-
     }
 }

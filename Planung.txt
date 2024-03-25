@@ -2,7 +2,7 @@
 #Code	#Nickname	#Name
 PSM	PiSer-Modul	RaspberryPi Server Modul
 FWU	FrWeb-UI	Frontend Website UI 
-NDI	Nice-face	Network Device Interface
+NDP	Nice-Poface	    Network Device Porotocol Interface
 PPI	PiPi-Com 	RaspberryPi to RaspberryPi Comunication
 RAC	RaAr-Anal-Com	RaspberryPi to Arduino Analog Comunication
 RSW	RusSe-Wa 	Rust Server Workaround
@@ -20,11 +20,11 @@ Ziel ist die Programmierung einer Website, welche meine "Nice-face" Schnittstell
 Von der Website aus sollen Smarthome-Geräte eingerichtet, verwaltet und bedient werden.
 ========================================================================================
 
-==Nice-face:======================================================================
-Ziel ist die Entwicklung einer Schnittstelle für eine Web-Programmiersprache, 
-welche es ermöglichen soll, Smarthome-Geräte zu konfigurieren.
-Das Interface soll auf API's bekannter Hersteller von Smarthome-Geräten zugreifen.
-Ebenfalls soll die "PiPi-Com" integriert werden.
+==Nice-Poface:======================================================================
+Ziel ist die entwicklung eines Protokolls, was als Schnittstelle zur Kommunikation der MQTT-Punkte (vom FrWeb-UI angespochen) dient.
+Es soll von JSON-Datenbank beschrieben/implementiert werden können.
+Das Nice-Poface umfasst 4 Kommunikationstypen (1:1|x:1|1:x|x:x). 
+Smart-enddeices nehem pro Funktionalität als Sensor oder Aktor einen dieser Typen als Funktionaliätsstandart an. 
 ================================================================================== 
 
 ==PiPi-Com:=================================================================================================
@@ -91,30 +91,48 @@ Soll automatisch neu starten, sobald ich etwas an der html oder js datei geände
 #		- Basic Input und Output element (zum Testen)
 #		- JS kommunikation über http mit Rust -> websocket (auch mqtt funktioniert über websockets)
  
-2.4 (PIPI-Com)
+2.4 (PPI)
 	MQTT Client auf Raspi 1 B+
 		- austausch mit Server
 		- Eingabe und Ausgabe Methode
-		- Rust auf Raspi 1B+ ohne Betribesystem?
+		- Rust auf Raspi 1B+ ohne Betribesystem? -> wird Rotz
 
 MS2: Alle Tests abgeschlossen!!
 	-> an diesem Punkt brauche ich:
-		- einen funktionierenden Webserver
-		- eine kleine Website, die darauf läuft
-		- Kommunikation zwischen Server und Website
+		# - einen funktionierenden Webserver
+		# - eine kleine Website, die darauf läuft
+		# - Kommunikation zwischen Server und Website
 		- Kommunikation zwischen Raspberrys über MQTT
 
 3. Ausbau der Grundfunktionen (Die Parameter kann ich jetzt noch nicht festlegen)
 
-# 3.1 (RSW)
-	Websocket und kommunikation zwischen script und Server
-	TSL/SSL sicherheit bei zugriff auf website
-	
 
-
-Modul Plan:
+MODUL PLAN:
 
 # PiSer-Modul (PSM)
   - TSL/SSL sicherheit bei zugriff auf website
   - Zugriff von Handy (im selbern Netzwerk und von ausßerhalb) -> Zertifikat? oder kann sich immer nur ein gerät auf den websockert verbinden?
   - 
+
+# PiPi-Com (PPI)
+  - Ansteuern von Hardware
+  - MQTT Client
+    - Nachrichten Senden 
+	- Nachrichten Empfangen
+	
+	
+PROTOKOLL PLAN:
+
+ (der MQTT-Payload)
+  Aufteilen von Topics?
+  JS & Raspi MQTT Client implementierungen für Verbindungstypen
+    - Schalter  	1:1
+	- Aktor			int:1    //bsp. IR einzustellender Wert (an/aus/rot/grün...)
+	- Aktor_mult	int[]:1  //
+	- Sensor 		1:int    
+	- Sensor_mult 	1:int[]
+	- Werterückgabe x:x 
+  jeder MQTT-Client erhält ein eigenes Topic 
+  auf deisem gerät werden verscheidene Funktionalitäten (Sensoren oder Aktoren) über eine UID gekennzeichnet
+ 
+  

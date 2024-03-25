@@ -1,23 +1,29 @@
-{"device_list":{
-    "lampe1":{
-        "dev_id":0,
-        "type": "Schalter",
-        "name":"Nachttischlampe"
-    },
-    "Lampe2":{
-        "dev_id":64,
-        "type": "Schalter",
-        "name":"Deckenlampe"
-    },
-    "TV":{
-        "dev_id":32,
-        "type": "Schalter",
-        "name":"TVSteckdose"
-    },
-    "Steckdose":{
-        "dev_id":99,
-        "type": "Schalter",
-        "name":"E_Auto",
-        "größe": 5
-    }
-}}
+{
+	"device_list": {
+		"lampe1": {
+			"topic": "Raspi01",
+			"dev_id": 0,
+			"type": "Schalter",
+			"name": "Nachttischlampe"
+		},
+		"Lampe2": {
+			"topic": "ESP3201",
+			"dev_id": 64,
+			"type": "Schalter",
+			"name": "Deckenlampe"
+		},
+		"TV": {
+			"topic": "ESP3202",
+			"dev_id": 32,
+			"type": "Schalter",
+			"name": "TVSteckdose"
+		},
+		"Steckdose": {
+			"topic": "Raspi02",
+			"dev_id": 99,
+			"type": "Schalter",
+			"name": "E_Auto",
+			"größe": 5
+		}
+	}
+}
