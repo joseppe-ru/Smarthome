@@ -1,0 +1,9 @@
+Wie kann ich die IRremote Bibliothek für den Arduino einbinden?
+
+1. Im Projekt in der Oberen Leiste "Sketch" auswählen.
+2. Den Reiter "Bibliothek einbinden" aus dem Dropdown Menü auswählen
+3. im nächsten Dropdown Menü ist die option ".ZIP-Bibliothek einbinden" zu sehen
+4. den Ordner suchen (liegt mit im Git unter "Quellcode")
+5. der include "#include <IRremote.h>" sollte jetzt funktionieren
+
+Die Bibliothek enthält außerdem eine Doku mit Beispielanwendungen zum Spicken XD.
