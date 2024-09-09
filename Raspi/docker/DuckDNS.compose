@@ -1,0 +1,18 @@
+---
+version: "2.1"
+services:
+  duckdns:
+    image: lscr.io/linuxserver/duckdns:latest
+    container_name: Ente
+    network_mode: host #optional
+    environment:
+      - PUID=1000 #optional
+      - PGID=1000 #optional
+      - TZ=Etc/UTC
+      - SUBDOMAINS=hausschlauch
+      - TOKEN=2823b980-509d-44db-8af3-39efee4f8a1e
+      - UPDATE_IP=ipv4 #optional
+      - LOG_FILE=false #optional
+    volumes:
+      - /docker/DuckDNS/config:/config #optional
+    restart: unless-stopped

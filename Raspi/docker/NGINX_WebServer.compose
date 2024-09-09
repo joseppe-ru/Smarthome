@@ -1,0 +1,16 @@
+version: '3.3'
+
+services:
+    nginx:
+      image: "linuxserver/nginx:latest"
+      container_name: NetzBlatt
+      restart: unless-stopped
+      ports:
+        - "8080:80"
+        - "443:443"
+      volumes:
+        - "/etc/localtime:/etc/localtime:ro"
+        - "/docker/NGINX_WebServer/config:/config"
+        - "/docker/NGINX_WebServer/content:/usr/share/nginx/html:ro"
+      environment:
+        TZ: "Europe/Berlin"
