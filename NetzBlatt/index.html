@@ -9,77 +9,85 @@
     </head>
 
     <body>
-        <!-- Zeitungsüberschrift -->
-        <section id="Paper_Header">
-            <!-- <div class="info_box"><span> Unsere Hochzeotseinladung </span><br><span>Herzlich Wilkommen</span></div> -->
-            <header>Hochzeitseinladung</header>
-            <div id="info_box">
-                <div id="info_box_content">Breaking News: Save The Date! Halte dir das Datum Frei!</div>
+
+            <!-- Zeitungsüberschrift -->
+            <div id="Paper_Header">
+                <!-- <div class="info_box"><span> Unsere Hochzeotseinladung </span><br><span>Herzlich Wilkommen</span></div> -->
+                <header>Hochzeit</header>
+                <div id="info_box">
+                    <div id="info_box_content">Breaking News: Save The Date! Halte dir das Datum Frei!</div>
+                </div>
             </div>
-        </section>
 
-        <!-- Zeitungsinhalt -->
-        <section id="Paper_Body">
+            <!-- Zeitungsinhalte -->
 
-            <article id="welcome_article">
-                <table><th>
-                    <p>Wir, Elisabeth Storch (nahezu Rudolph, rechts) und Josia Rudolph (ehemals auch Rudolph, links) haben so so dolle Lieb, dass wir Hochzeit feiern Wollen. Für unseren Bund brauche wir natürlich auch Zeugen</p>
-                </th>
-                <th >
+            <!-- Herzliches Wilkoomen -->
+            <section class="Paper_Welcome">
+                <article id="about_us_article" class="collumn">
+                    <div class="head"> <span class="headline_1">HI ;)</span>
+                    <p>Wir, <b>Elisabeth Storch</b> (nahezu Rudolph, links) und <span class="bolded">Josia Rudolph</span> (ehemals auch Rudolph, rechts) haben uns so dolle Lieb, dass wir Hochzeit feiern wollen. Für unseren Bund brauche wir natürlich auch Zeugen</p>           </article>
+
+                <article class="collumn">
                     <!-- TODO: ein Bild oder GIF von Uns (aus der Hochzeitseinladung) -->
-                    <img class="picture_1" src="http://i.giphy.com/PW7MoTD2d9pJK.gif" alt="">
-                </th>
-                <th >
-                    <p>Wenn du dem Link (oder QR-Code) auf deiner Einladung bist...</p>
-                    <p>GLÜCKWUNSCH, Wir wollen Dich an diesem besonderem Tag dabei haben</p>
-                </th></table>
-            </article>
+                    <!-- <img id="picture_1" src="http://i.giphy.com/PW7MoTD2d9pJK.gif" alt=""> -->
+                    <div class="picture_1-frame">
+                        <img class="picture" src="images/RomantischeBild.jpeg" alt="">
+                    </div>
+                </article>
 
-            <div class="content">
-                <div class="collumns">
+                <article class="collumn" >
+                    <p>Wenn du dem Link (oder QR-Code) auf deiner Einladung gefolgt bist...</p>
+                    <p>GLÜCKWUNSCH, Wir wollen Dich an diesem besonderem Tag dabei haben</p>
+                </article>
+            </section>
+
+        
+
+            <!-- Infos und ander Inhalte -->
+            <section id="Paper_Body_Content">
                     <!-- Artikel 1 -->
-                    <div class="collumn">
+                    <article id="article_1" class="collumn">
                         <div class="head"><span class="headline hl3">Aktuelle Informationen</span>
                             <p><span class="headline hl4">WO?</span></p>
                         </div>
-                        <iframe class="LocationMap" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d20227.844989006386!2d12.605324099999999!3d50.673903100000004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a7333a24a8cba9%3A0xdd1e666a6a537348!2sLappen%20Ausstellung!5e0!3m2!1sde!2sde!4v1725889781747!5m2!1sde!2sde" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    </div>
+                        <iframe class="LocationMap" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d20227.844989006386!2d12.605324099999999!3d50.673903100000004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a7333a24a8cba9%3A0xdd1e666a6a537348!2sLappen%20Ausstellung!5e0!3m2!1sde!2sde!4v1725889781747!5m2!1sde!2sde"  allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </article>
+
                     <!-- Artikel 2 -->
-                    <div class="collumn">
-                        <div class="head"><span class="headline hl5">Geschenke</span><p><span class="headline hl6">Geld</span></p></div>
+                    <article id="article_2" class="collumn">
+                        <div class="head"><span class="headline_1">Geschenke</span><p><span class="headline_1">Geld</span></p></div>
                         <p>Wir möchten nur euer Gled haben</p>
                         <figure class="figure">
                             <!-- <img class="media" src="http://i.giphy.com/PW7MoTD2d9pJK.gif" alt=""> -->
                             <figcaption class="figcaption">Übertreibt nicht</figcaption>
                         </figure>
+                    </article>
 
-                    </div>
                     <!-- Artikel 3 -->
-                    <div class="collumn">
-                        <div class="head"> <span class="headline hl1">Links</span>
-                            <p><span class="headline hl2">Nextcloud</span></p>
+                    <article id="article_3" class="collumn">
+                        <div class="head"> <span class="headline_1">Links</span>
+                            <p><span class="headline_1">Nextcloud</span></p>
                         </div>
 
                         <figure class="figure">
                             <!-- <img class="media" src="http://i.giphy.com/4fDWVPMoSyhgc.gif" alt=""> -->
-                            <figcaption class="figcaption">Cloud für Bilder</figcaption>
                         </figure>
 
                         <p>Wenn ihr Bilder mit uns Teilen wollt, gern hier hohladen. Aber bitte kein unnütiger Spam!</p>
-                    </div>
+                    </article>
+
                     <!-- Artikel 4 -->
-                    <div class="collumn">
-                        <div class="head"><span class="headline hl3">The buzz of the little world </span><p><span class="headline hl4">A thousand unknown plants</span></p></div>
+                    <article id="article_4" class="collumn">
+                        <div class="head"><span class="headline_1">The buzz of the little world </span><p><span class="headline_1">A thousand unknown plants</span></p></div>
                         <p>inidviduum</p>
-                    </div>
+                    </article>
+
                     <!-- Artikel 5 -->
-                    <div class="collumn">
-                        <div class="head"><span class="headline hl1">It wasn't a dream </span><p><span class="headline hl4">bspanner</span></p></div>
+                    <article id="article_5" class="collumn">
+                        <div class="head"><span class="headline_1">It wasn't a dream </span><p><span class="headline_1">bspanner</span></p></div>
                         <fieldset>Kacheln</fieldset>
-                    </div>
-                </div>
-            </div>
-            <div class="subhead">Wir freuen uns auf Dich XD</div>
-        </section>
+                    </article>
+            </section>
+
     </body>
 </html>

@@ -1,175 +1,214 @@
+/* Schriftarten Einbiden  */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
+/* Playfair Display', serif; */
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
+/* font-family: "Lora", serif; */
+/* font-optical-sizing: auto; */
+/* font-weight: <weight>; */
+/* font-style: normal; */
+
 /* Alles */
 html, body {
     width: 100%;
     margin: 0;
     padding: 0;
-    position: sticky;
+    position: absolute;
     /* box-sizing:border-box; */
-    overflow-x:hidden;
-
+    overflow-x:visible;
 }
 
-body {
-    font-family: 'Droid Serif', serif;
-    color: #2f2f2f;
-    background-color: #f9f7f1;
-    background-image: url("images/old_paper.png");
-    line-height: 1.6;
+section {
+    border: 4px transparent black;
+    border-radius: 10px;
+    padding: 10px;
+    display:flex;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin: 0px;
+    padding: 10px;
+}
+table, th{
+    width: 100%;
+    table-layout: fixed;
+    border: 0px transparent;
+    padding: 1%;
+}
+p{
+    text-align: justify;
+    font-family: "Lora", serif;
+    font-optical-sizing: none;
+
+    font-weight: 400;
+    font-style: normal;
+    font-size: 200%;
+    line-height: 1.2;
+}
+.bolded{
+    font-weight: 800;
 }
 
-/* Header, Überschriften, Breaking News */
 
+/* Page Settings */
+.Page{
+
+    /* background-image: url("images/old_paper.png");
+    
+    box-shadow: inset 0 0 5px 10px black; 
+    background-attachment:scroll;
+
+    background-repeat:repeat;
+    background-size: cover; */
+
+    height: 100vh;
+    width: 100vw;
+    position:relative;
+    overflow:visible;
+    padding: 0;
+    margin: 0;
+
+    display: block;
+    
+}
+
+/* Zeitungsüberschrift */
 #Paper_Header {
     text-align: center;
     width:100%;
 }
-
 header {
     font-family: 'Playfair Display', serif;
     font-weight: 900;
-    font-size: 4vw;
+    font-size: 6em;
     text-transform: uppercase;
     display: inline-block;
-    /* line-height: 72px; */
-    /* margin-bottom: 20px; */
     width:100%;
 }
-
 #info_box {
-    padding: 0;
     font-style: italic;
     width: 100%;
-    text-align: center;
+    text-align: justify;
     overflow: hidden;
     background-color: rgba(0, 0, 0, 0.5);
     white-space: nowrap;
     border-radius: 10px;
 }
-
 #info_box_content {
-    padding: 0;
     display: block;
-    animation: scrollText 20s linear infinite;
-    font-size: 3vw; /* Responsive font size */
+    animation: scrollText 20s reverse infinite linear;
+    font-size: 100%; /* Responsive font size */
     color: #ffffff;
 }
-
 @keyframes scrollText {
     0% {
-        transform: translateX(100%);
+        transform: translateX(-110%);
     }
     100% {
-        transform: translateX(-100%);
+        transform: translateX(110%);
     }
 }
 
-/* Inhaltsteil, Wilkommensartikel, */
-#welcome_article {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 1vw; /* Responsive font size */
+/* <!-- Zeitungsüberschrift --> */
+
+/* Willkommensartikel */
+#Paper_Welcome{
     padding: 0 2%;
 }
 
-#LocationMap{
-    width:100%;
+#about_us_article{
+    width:60%;
 }
 
-p {
-    margin-top: 0;
-    margin-bottom: 20px;
+
+.picture{
+    /* filter: grayscale(100%);
+    -webkit-filter: sepia(20%) contrast(1) opacity(0.6); */
+
+    filter: grayscale(100%);
+-webkit-filter: grayscale(100%);
+-moz-filter: grayscale(100%);
+-ms-filter: grayscale(100%);
+-o-filter: grayscale(100%);
+filter: url(desaturate.svg#greyscale);
+filter: gray;
+-webkit-filter: grayscale(1);
+    
+}
+.picture_1-frame{
+    width: 350px;
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+    margin: auto;
 }
 
-table {
+/* <!-- Infos und ander Inhalte --> */
+.LocationMap{
     width: 100%;
-    table-layout: fixed;
-    border: 0px transparent;
+    height: 10rem;
+    border: 4px solid black;
 }
 
-th {
-    padding: 1%;
-}
-
-.picture_1{
-    width:100%;
-    -webkit-filter: sepia(80%) contrast(1) opacity(0.8);
-    filter: sepia(80%) grayscale(1) contrast(1) opacity(0.8);
-    mix-blend-mode: multiply;
+.picture_1-frame img{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    object-fit: cover; 
     width: 100%;
 }
 
-#Paper_Body {
-    border: 4px transparent black;
-    border-radius: 10px;
-    padding: 10px;
+section.Paper_Welcome{
+    text-align: center;
 }
 
-.content {
-    /* font-size: 0;
-    line-height: 0;
-    display: inline-block;
-    margin: 30px 2%;
-    width: 100%; */
-}
-
-/* .collumn {
-    width: 31%; /* Default for larger screens 
-} */
-.collumn{
-    font-size: 14px;
-    line-height: 20px;
-    width: 17.5%;
-    display: inline-block;
+article.collumn{
+    /* line-height: 20px; */
+    /* width: 17.5%; */
     padding: 0 1% 0 1%;
-    vertical-align: top;
-    margin-bottom: 50px;
+    display: grid;
+    vertical-align:middle;
     transition: all .7s;
 }
 
-.collumn + .collumn {
+article.collumn + article.collumn {
     border-left: 1px solid #2f2f2f;
 }
 
-.collumn .headline {
+article.collumn .headline {
     text-align: center;
-    margin: 0 auto;
+
 }
 
-.collumn .headline.hl1 {
+.collumn .headline_1 {
     font-weight: 700;
     font-size: 1.8rem;
     text-transform: uppercase;
     padding: 10px 0;
 }
 
-.collumn .headline.hl2, .collumn .headline.hl3 {
-    font-style: italic;
-    font-size: 1.5rem;
-    padding: 10px 0;
-}
 
-/* Mobile-specific styles */
-@media only screen and (max-width: 900px) {
-    .collumn {
-        width: 47%; /* For medium screens */
+ @media only screen and (max-width: 900px) {
+
+    article.collumn + article.collumn {
+        border-left: none;
     }
 
-    header {
-        font-size: 7vw; /* Adjust font size for smaller screens */
-        line-height: 54px;
-        overflow: hidden;
+    section{
+        display: block;
     }
-
-    #info_box_content {
-        font-size: 4vw; /* Adjust scrolling text size */
-        background-color: darkorchid;
+    header{
+        font-size: 4em;
     }
-}
-
-@media only screen and (max-width: 600px) {
-
+    #about_us_article{
+        width:100%;
+    }
+    p{
+        font-size: 4vw;
+    }
+    
     /* .collumn {
-        width: 100%; /* Stack columns on mobile 
-    } */
+        width: 100%; 
+    } 
 
     html, body {
         width: 100%;
@@ -179,20 +218,23 @@ th {
         box-sizing:content-box;
     }
     
+    .collumn {
+        width: 47%; 
+    }
 
     .collumn + .collumn {
         border-left: none;
-        border-bottom: 1px solid #2f2f2f;
     }
 
     header {
-        /* max-width: 320px; */
-        font-size: 7vw; /* Smaller font for very small screens */
+        max-width: 320px; 
+        font-size: 7vw;
         line-height: 54px;
+        overflow: hidden;
     }
 
     #info_box_content {
         font-size: 5vw;
         background-color: aqua;
-    }
-}
+    } */
+} 
