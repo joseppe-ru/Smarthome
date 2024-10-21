@@ -84,12 +84,6 @@ th{
 }
 
 
-
-
-#Paper_Body{
-
-}
-
 .collumn{
     font-size: 14px;
     line-height: 20px;
@@ -114,15 +108,14 @@ th{
 .collumn + .collumn {
   border-left: 1px solid #2f2f2f;
 }
-.collumn .headline{
+.collumn.headline{
     text-align: center;
     line-height: normal;
     font-family: 'Playfair Display', serif;
     display: block;
     margin: 0 auto;
-
-
 }
+
 .collumn .headline.hl1{
     font-weight: 700;
     font-size: 30px;

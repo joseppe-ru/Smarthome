@@ -1,0 +1,29 @@
+Beschreibung der Docker container, die ich Verwende.
+RPI 	= RaspberryPi 4B Docker
+S-PC	= LowPower Server PC (Kubernetes oder Proxmox mit) Docker
+Zu jedem Container Sollte ein gepflegtes Docker-Compose-File bereitstehen...
+
+Name                	Beschreibung            Netzwerk    ContainerName	Platform	
+
+Administration:
+    - DuckDNS           DDNS, Domain            Host        Ente			RPi
+    - WireGuard         VPN-Server              Bridge      Schlauch		RPi
+    - PiHole            DNS, Werbefilter        MACVLAN     Ed-Loch			RPi
+    - NGINX Proxy       Proxy, Zertifikate,     Bridge      Steffan			RPi
+      Manager           local Domain            
+    - WatchTower        Automatisiertes Update  Bridge      Wachturm		RPi, S-PC
+                        für alle Container
+
+Nutzprogramme:
+    - Nextcloud         Cloud                   Bridge      Wolke			S-PC
+    - Homeassistant     Hausautomatisierung     Bridge      Schlauhaus		RPi
+    - Mail Server       E-Mail Domain,          Bridge      Post			RPi
+                        Automatisiertes absenden    
+    - Grocy             Einkaufsliste
+    - NGINX             aktuelle Hochzeits-     IPvLAN      Netzblatt		RPi
+                        informationen,
+                        WebServer
+	- GitLab			Repo-Server				Bridge
+
+
+Path to website.html: /docker/NGINX_WebServer/config/www

@@ -1,0 +1,66 @@
+html{
+    overflow: scroll;
+    scroll-snap-type: y mandatory;
+    scroll-padding-top: 0;
+    margin:0;
+}
+
+body{
+    margin:0;
+}
+
+section{
+    scroll-snap-align: start;
+    position:relative;
+    display: flex;
+    flex-direction: column;
+    
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    overflow-y:scroll;
+}
+
+p{
+    text-align: left;
+}
+
+/* Der Container ist die Klasse einer anzeigeseite */
+.grid_container{
+    height: 90vh;
+    width: 90vw;
+    position: relative;
+    margin: 0;
+    padding: 0;
+
+    animation-name: hoverout;
+    animation-iteration-count: 1;
+    animation-duration: .7s;
+    opacity: 0;
+    animation-timing-function: ease-in-out;
+
+    align-items: center; 
+    text-align: center; 
+    justify-items: center;
+    display:inline-block;
+}
+
+@keyframes hoverout {
+    0% {opacity: 100;}
+    100% {opacity: 0;}
+}
+
+/* Elemente mit classe '.grid' verblassen und erscheinen, jenach, ob sie im Viewport sind oder nicht */
+.visible{
+    animation-name: wake_up;
+    animation-iteration-count: 1;
+    animation-duration: .5s;
+    opacity: 100;
+    animation-timing-function: ease-in-out;
+}
+
+@keyframes wake_up{
+    0% {opacity: 0;}
+    100% {opacity: 100;}
+}

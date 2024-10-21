@@ -1,0 +1,15 @@
+#countdown{
+    position:absolute;
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 4vw;
+    text-transform: uppercase;
+    top: 50%;
+    width:100%;
+}
+
+.title{
+    position:absolute;
+    top: 15%;
+    text-align: center;
+}

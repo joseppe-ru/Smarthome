@@ -1,0 +1,77 @@
+.grid{
+    border: solid 5px;
+    position: absolute;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-color: black;
+    background-color: coral;
+    box-sizing: border-box;
+}
+
+article.greetings{
+    top: 0;
+    left: 0;
+    width: 33%;
+    height: 66%;
+}
+
+article.portrait_she{
+    top: 0;
+    left: 33%;
+    width: 17%;
+    height: 66%;
+
+    overflow: hidden;
+}
+
+article.marry{
+    top: 0;
+    left: 50%;
+    width: 50%;
+    height: 33%;
+}
+
+article.about{
+    top: 66%;
+    left: 0;
+    width: 50%;
+    height: 33%;
+}
+
+article.portrait_he{
+    top: 33%;
+    left: 50%;
+    width: 16%;
+    height: 66%;
+
+    overflow: hidden;
+}
+
+article.else{
+    top: 33%;
+    left: 66%;
+    width: 34%;
+    height: 66%;
+}
+
+.portrait{
+    /* filter: grayscale(100%);
+    -webkit-filter: sepia(20%) contrast(1) opacity(0.6); */
+    filter: grayscale(100%);
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: url(desaturate.svg#greyscale);
+    filter: gray;
+    -webkit-filter: grayscale(1);
+
+    /* Zentrieren: */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+
+    /* Ausfüllen: */
+    height: 100%;
+}

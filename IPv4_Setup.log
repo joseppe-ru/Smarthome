@@ -1,0 +1,38 @@
+# IPv4 Setup:	
+
+Gateway		10.40.2.1
+DNS_1		10.40.2.1
+DNS_2		10.40.2.11
+SubNetz		255.255.255.000
+
+
+# IPv4 Adressbereiche:
+
+Server...	10.40.2.11 		to  10.40.2.99
+DHCP		10.40.2.100		to  10.40.2.200
+		
+
+# IPv4 statische Adressen:
+ 
+Router	    	10.40.2.1
+Drucker:	10.40.2.5
+TV:		10.40.2.6
+X-BOX		10.40.2.7
+tv-box:		10.40.2.8
+
+RPi_4:		10.40.2.11
+Pi-Hole:	10.40.2.12
+Proxmox:	10.40.2.13
+
+Pi dnsroute:	10.40.2.201
+
+
+Create Interface for RasPi to route to my DNS(pihole):
+sudo ip link add dnsroute link eth0 type macvlan mode bridge
+sudo ip addr add 10.40.2.201/32 dev dnsroute
+sudo ip link set dnsroute up
+sudo ip route add 10.40.2.12/32 dev dnsroute
+
+
+ha network update net0 --ipv4-address 10.40.2.14/24 --ipv4-gateway 10.40.2.1 --ipv4-method static --dns 10.40.2.12
+

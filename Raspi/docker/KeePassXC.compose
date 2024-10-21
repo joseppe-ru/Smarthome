@@ -1,0 +1,17 @@
+services:
+    keepassxc:
+        image: lscr.io/linuxserver/keepassxc:latest
+        container_name: keepassxc
+        environment:
+        - PUID=1000
+        - PGID=1000
+        - TZ=Etc/UTC
+        - COSTOM_USER=admin
+        - PASSWORD=admin
+        - TITLE="KeePassXC_Web"
+        volumes:
+        - /docker/KeePassXC/config:/config
+        restart: always
+        ports:
+        - 3000:3000
+        - 3001:3001
